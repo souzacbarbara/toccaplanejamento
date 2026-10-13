@@ -1,0 +1,1674 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TOCCA — Auditoria & Estratégia de Conteúdo</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Anton&family=Poppins:ital,wght@0,400;0,500;0,600;0,700;1,500&display=swap');
+
+  :root{
+    --bg: #F7F4F0;
+    --surface: #FFFFFF;
+    --surface-2: #EFE6DC;
+    --surface-3: #E4D2C0;
+    --ink: #1C1C1C;
+    --ink-soft: #6B5643;
+    --ink-faint: #9C8B79;
+    --line: #E4D2C0;
+    --accent: #FF6A00;
+    --accent-ink: #FFFFFF;
+    --shadow: 0 1px 2px rgba(28,20,14,0.04), 0 8px 24px -12px rgba(28,20,14,0.18);
+    /* TOCCA-only accent, used strictly inside TOCCA content cards */
+    --tocca-roxo: #9b59b6;
+    --tocca-laranja: #e74c3c;
+    --tocca-preto: #0d0d0d;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg: #171310; --surface: #211A15; --surface-2: #2B2119; --surface-3: #3E2C23;
+      --ink: #F5EFE8; --ink-soft: #C9B8A6; --ink-faint: #8A7862; --line: #3E2C23;
+      --accent: #FF7A1A; --accent-ink: #1C1C1C;
+      --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 8px 28px -12px rgba(0,0,0,0.55);
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg: #171310; --surface: #211A15; --surface-2: #2B2119; --surface-3: #3E2C23;
+    --ink: #F5EFE8; --ink-soft: #C9B8A6; --ink-faint: #8A7862; --line: #3E2C23;
+    --accent: #FF7A1A; --accent-ink: #1C1C1C;
+    --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 8px 28px -12px rgba(0,0,0,0.55);
+  }
+
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--bg); color:var(--ink);
+    font-family:'Poppins',system-ui,-apple-system,sans-serif;
+    font-size:16px; line-height:1.6; -webkit-font-smoothing:antialiased;
+  }
+  ::selection{ background:var(--accent); color:var(--accent-ink); }
+  .wrap{ max-width:980px; margin:0 auto; padding:0 24px 100px; }
+  .display{ font-family:'Anton',system-ui,sans-serif; font-weight:400; text-transform:uppercase; letter-spacing:0.005em; text-wrap:balance; }
+
+  /* ---------- TOP NAV ---------- */
+  .topnav{
+    position:sticky; top:0; z-index:50; background:var(--bg);
+    border-bottom:1px solid var(--line); padding:14px 24px;
+    display:flex; justify-content:center;
+  }
+  .topnav-inner{
+    max-width:980px; width:100%; display:flex; align-items:center; justify-content:space-between;
+    gap:16px; flex-wrap:wrap;
+  }
+  .topnav-brand{ font-family:'Anton'; font-size:0.95rem; letter-spacing:0.02em; }
+  .topnav-links{ display:flex; gap:4px; flex-wrap:wrap; }
+  .topnav-links a{
+    font-size:12px; font-weight:600; color:var(--ink-soft); text-decoration:none;
+    padding:7px 12px; border-radius:100px; white-space:nowrap;
+  }
+  .topnav-links a:hover{ background:var(--surface-2); color:var(--ink); }
+
+  /* ---------- HERO ---------- */
+  header.hero{ padding:56px 0 40px; border-bottom:1px solid var(--line); margin-bottom:56px; }
+  .eyebrow{ display:inline-flex; align-items:center; gap:8px; font-size:12.5px; letter-spacing:0.14em; text-transform:uppercase; color:var(--ink-soft); font-weight:600; margin-bottom:18px; }
+  .eyebrow .dot{ width:6px; height:6px; border-radius:50%; background:var(--accent); }
+  .hero h1{ font-size:clamp(2.2rem, 5.6vw, 3.8rem); line-height:0.98; margin:0 0 20px; }
+  .hero h1 span{ color:var(--accent); }
+  .hero p.lede{ max-width:60ch; font-size:1.05rem; color:var(--ink-soft); margin:0 0 28px; }
+  .chip-row{ display:flex; flex-wrap:wrap; gap:10px; }
+  .chip{ font-size:13px; font-weight:600; padding:8px 14px; border-radius:100px; background:var(--surface-2); color:var(--ink); border:1px solid var(--line); white-space:nowrap; }
+  .chip b{ color:var(--accent); font-weight:700; }
+
+  /* ---------- SECTION SCAFFOLD ---------- */
+  section{ margin-bottom:72px; scroll-margin-top:72px; }
+  .sec-head{ margin-bottom:28px; }
+  .sec-num{ font-family:'Anton'; font-size:13px; color:var(--ink-faint); letter-spacing:0.1em; display:block; margin-bottom:8px; }
+  .sec-head h2{ font-size:clamp(1.4rem,3.2vw,2rem); margin:0 0 10px; line-height:1.08; }
+  .sec-head p{ color:var(--ink-soft); max-width:64ch; margin:0; font-size:0.98rem; }
+  p{ margin:0 0 14px; }
+  .prose p:last-child{ margin-bottom:0; }
+
+  /* ---------- STATS ---------- */
+  .stats-row{ display:grid; grid-template-columns:repeat(2,1fr); gap:12px; margin-bottom:28px; }
+  @media(min-width:640px){ .stats-row{ grid-template-columns:repeat(4,1fr); } }
+  .stat-box{ background:var(--surface); border:1px solid var(--line); border-radius:14px; padding:18px; text-align:center; }
+  .stat-box .n{ font-family:'Anton'; font-size:1.8rem; color:var(--accent); }
+  .stat-box .l{ font-size:12px; color:var(--ink-soft); margin-top:4px; }
+
+  /* ---------- DIAGNOSTIC TABLE / REF CARDS ---------- */
+  .diag-grid{ display:grid; grid-template-columns:1fr; gap:14px; }
+  .diag-card{ background:var(--surface); border:1px solid var(--line); border-radius:16px; padding:22px 24px; box-shadow:var(--shadow); }
+  .diag-card-top{ display:flex; align-items:baseline; gap:10px; margin-bottom:12px; }
+  .diag-badge{ width:22px; height:22px; border-radius:50%; background:#e74c3c; color:#fff; font-size:12px; font-weight:800; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+  .diag-badge.ok{ background:#2e8b57; }
+  .diag-name{ font-weight:700; font-size:1rem; }
+  .diag-split{ display:grid; grid-template-columns:1fr; gap:14px; }
+  @media(min-width:720px){ .diag-split{ grid-template-columns:1fr 1fr; } }
+  .diag-col{ font-size:0.94rem; }
+  .diag-col .lbl{ font-size:11.5px; font-weight:700; letter-spacing:0.08em; text-transform:uppercase; color:var(--ink-faint); display:block; margin-bottom:6px; }
+  .diag-col.apply .lbl{ color:var(--accent); }
+  .diag-col p{ margin:0; color:var(--ink-soft); }
+  .diag-col.apply p{ color:var(--ink); }
+  .diag-positivos{ background:var(--surface); border:1px solid var(--line); border-radius:16px; padding:22px 24px; margin-top:20px; }
+  .diag-positivos h3{ font-size:1rem; margin:0 0 14px; }
+  .pos-list{ display:grid; grid-template-columns:1fr; gap:10px; }
+  @media(min-width:720px){ .pos-list{ grid-template-columns:1fr 1fr; } }
+  .pos-item{ display:flex; gap:10px; font-size:0.9rem; color:var(--ink-soft); }
+  .pos-item .mark{ flex:none; color:#2e8b57; font-weight:800; }
+
+  /* ---------- BIO COMPARE ---------- */
+  .bio-compare{ display:grid; grid-template-columns:1fr; gap:16px; margin-top:28px; }
+  @media(min-width:720px){ .bio-compare{ grid-template-columns:1fr 1fr; } }
+  .bio-card-box{ border:1px solid var(--line); border-radius:16px; overflow:hidden; background:var(--surface); box-shadow:var(--shadow); display:flex; flex-direction:column; }
+  .bio-card-box h4{ margin:0; padding:14px 18px; font-size:12.5px; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; background:var(--surface-2); color:var(--ink-soft); }
+  .bio-card-box.proposta h4{ background:var(--accent); color:var(--accent-ink); }
+  .bio-img-wrap{ background:#111; display:flex; align-items:center; justify-content:center; }
+  .bio-img-wrap img{ width:100%; display:block; }
+  .bio-proposta-text{ padding:22px; font-size:0.94rem; line-height:1.75; color:var(--ink-soft); flex:1; display:flex; align-items:center; }
+  .bio-proposta-text strong{ color:var(--ink); }
+  .bio-caption{ padding:14px 18px; font-size:12.5px; color:var(--ink-faint); border-top:1px solid var(--line); }
+
+  /* ---------- DESTAQUES (blueprint) ---------- */
+  .blueprint{ display:flex; flex-direction:column; border:1px solid var(--line); border-radius:16px; overflow:hidden; background:var(--surface); }
+  .bp-row{ display:grid; grid-template-columns:56px 1fr; border-bottom:1px solid var(--line); }
+  .bp-row:last-child{ border-bottom:none; }
+  .bp-num{ background:var(--surface-2); display:flex; align-items:center; justify-content:center; font-family:'Anton'; font-size:1.1rem; color:var(--ink-faint); }
+  .bp-content{ padding:16px 20px; }
+  .bp-content .name{ font-weight:700; font-size:0.98rem; margin-bottom:3px; }
+  .bp-content .note{ font-size:0.9rem; color:var(--ink-soft); }
+  .bp-content .note b{ color:var(--accent); font-weight:600; }
+
+  /* ---------- MARCA & PERSONA (TOCCA identity) ---------- */
+  .two-col{ display:grid; grid-template-columns:1fr; gap:18px; }
+  @media(min-width:760px){ .two-col{ grid-template-columns:1fr 1fr; } }
+  .tocca-card{
+    border-radius:18px; padding:30px; color:#fff;
+    background:linear-gradient(135deg, var(--tocca-roxo), var(--tocca-laranja));
+    box-shadow:var(--shadow);
+  }
+  .tocca-card h3{ font-family:'Anton'; text-transform:uppercase; font-size:1.3rem; margin:0 0 20px; letter-spacing:0.01em; }
+  .tocca-card .f{ margin-bottom:18px; }
+  .tocca-card .f:last-child{ margin-bottom:0; }
+  .tocca-card .lbl{ font-size:11px; text-transform:uppercase; letter-spacing:0.08em; opacity:0.85; margin-bottom:6px; }
+  .tocca-card .ct{ font-size:0.94rem; line-height:1.65; }
+  .persona-card{ border:2px solid var(--tocca-preto); border-radius:18px; padding:30px; background:var(--surface); }
+  .persona-card h3{ font-family:'Anton'; text-transform:uppercase; font-size:1.3rem; margin:0 0 20px; color:var(--tocca-preto); }
+  .persona-grid{ display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:20px; }
+  .persona-item{ background:var(--surface-2); border-radius:8px; padding:12px; }
+  .persona-item .lbl{ font-size:10.5px; text-transform:uppercase; letter-spacing:0.06em; color:var(--tocca-laranja); font-weight:700; margin-bottom:4px; }
+  .persona-item .val{ font-size:0.88rem; color:var(--ink); font-weight:500; }
+  .persona-tags{ display:flex; flex-wrap:wrap; gap:8px; margin-bottom:18px; }
+  .persona-tags span{ background:var(--surface-2); padding:6px 11px; border-radius:20px; font-size:12px; color:var(--ink-soft); }
+  .persona-card .fric{ font-size:0.86rem; color:var(--ink-soft); line-height:1.7; }
+  .persona-card .fric b{ color:var(--tocca-roxo); }
+
+  /* ---------- PILLAR GRID (TOCCA) ---------- */
+  .pillar-grid{ display:grid; grid-template-columns:1fr; gap:18px; }
+  @media(min-width:760px){ .pillar-grid{ grid-template-columns:1fr 1fr; } }
+  .pillar-card{ border-radius:18px; overflow:hidden; box-shadow:var(--shadow); display:flex; flex-direction:column; border:1px solid var(--line); background:var(--surface); }
+  .pillar-mock{
+    background:linear-gradient(135deg, var(--tocca-preto), var(--tocca-roxo));
+    color:#fff; padding:22px; min-height:120px; display:flex; flex-direction:column; justify-content:flex-end; position:relative;
+  }
+  .pillar-mock .tag{ position:absolute; top:16px; left:18px; font-size:11px; letter-spacing:0.1em; text-transform:uppercase; opacity:0.7; font-weight:600; }
+  .pillar-mock .emoji{ font-size:2rem; }
+  .pillar-body{ padding:18px 20px 22px; }
+  .pillar-body h4{ margin:0 0 8px; font-size:1.05rem; }
+  .pillar-body p{ font-size:0.9rem; color:var(--ink-soft); margin:0; }
+
+  /* ---------- PLAYBOOK FORMULAS ---------- */
+  .formula{ border:1px solid var(--line); border-radius:14px; padding:18px 20px; margin-bottom:14px; background:var(--surface); }
+  .formula-head{ display:flex; align-items:center; gap:10px; margin-bottom:10px; flex-wrap:wrap; }
+  .formula-tag{ font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; background:var(--surface-2); color:var(--ink-soft); padding:4px 10px; border-radius:100px; }
+  .formula-name{ font-weight:700; font-size:1rem; }
+  .formula ul{ margin:0; padding-left:20px; }
+  .formula li{ font-size:0.92rem; color:var(--ink-soft); margin-bottom:5px; }
+  .formula li:last-child{ margin-bottom:0; }
+  .formula li b{ color:var(--ink); font-weight:600; }
+
+  /* ---------- STORY ARC (3 blocos) ---------- */
+  .story-arc{ display:grid; grid-template-columns:1fr; gap:0; border:1px solid var(--line); border-radius:14px; overflow:hidden; background:var(--surface); }
+  .story-block{ display:grid; grid-template-columns:120px 1fr; border-bottom:1px solid var(--line); }
+  .story-block:last-child{ border-bottom:none; }
+  .story-block .sb{ background:var(--surface-2); padding:16px 12px; font-weight:700; font-size:0.82rem; display:flex; align-items:center; text-transform:uppercase; letter-spacing:0.03em; }
+  .story-block .sc{ padding:16px 18px; font-size:0.9rem; color:var(--ink-soft); display:flex; align-items:center; }
+  .story-block .sc b{ color:var(--ink); font-weight:600; }
+
+  /* ---------- PAUTA CALENDAR (30 conteúdos, details/summary) ---------- */
+  .week-group{ margin-bottom:22px; }
+  .week-label{ display:flex; justify-content:space-between; align-items:baseline; gap:10px; flex-wrap:wrap; font-size:11.5px; font-weight:700; text-transform:uppercase; letter-spacing:0.08em; color:var(--ink-faint); margin-bottom:10px; padding-top:14px; border-top:2px solid var(--ink); }
+  .week-label .foco{ font-weight:500; text-transform:none; letter-spacing:0; font-size:0.86rem; color:var(--ink-soft); }
+
+  .post-card{ border:1px solid var(--line); border-radius:12px; overflow:hidden; margin-bottom:10px; background:var(--surface); box-shadow:var(--shadow); }
+  .post-card summary{
+    list-style:none; cursor:pointer; display:grid; grid-template-columns:76px 1fr auto; gap:14px; align-items:center; padding:14px 16px;
+  }
+  .post-card summary::-webkit-details-marker{ display:none; }
+  .post-date2{ text-align:center; }
+  .post-date2 .dow{ font-family:'Anton'; font-size:0.65rem; color:var(--ink-faint); letter-spacing:0.04em; display:block; }
+  .post-date2 .dnum{ font-family:'Anton'; font-size:1.3rem; line-height:1; display:block; }
+  .post-summary-mid{ min-width:0; }
+  .pillar-pill{ display:inline-block; font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; background:var(--surface-2); color:var(--ink-soft); padding:3px 9px; border-radius:100px; margin-bottom:6px; }
+  .post-title{ font-weight:700; font-size:0.95rem; color:var(--ink); line-height:1.3; }
+  .post-badge{ font-size:10.5px; font-weight:700; text-transform:uppercase; padding:5px 10px; border-radius:100px; white-space:nowrap; background:var(--surface-2); color:var(--ink-soft); }
+  .post-badge.feed{ background:#fde3dd; color:#c0392b; }
+  .post-badge.story{ background:#ecdcf5; color:#7d3c98; }
+  .chevron{ transition:transform .2s; color:var(--ink-faint); font-size:12px; }
+  .post-card[open] .chevron{ transform:rotate(90deg); }
+  .post-detail{ padding:0 18px 20px; border-top:1px solid var(--line); }
+  .post-detail .blk{ margin-top:16px; }
+  .post-detail .blk .lbl{ font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; color:var(--accent); margin-bottom:6px; display:block; }
+  .post-detail .blk p{ font-size:0.9rem; color:var(--ink-soft); margin:0; line-height:1.7; }
+  .post-detail .copy-box{ background:var(--surface-2); border-radius:10px; padding:14px 16px; font-size:0.88rem; color:var(--ink); line-height:1.75; white-space:pre-line; }
+  .post-grid2{ display:grid; grid-template-columns:1fr; gap:14px; }
+  @media(min-width:680px){ .post-grid2{ grid-template-columns:1fr 1fr; } }
+
+  /* ---------- CRONOGRAMA RESUMO ---------- */
+  .resumo-grid{ display:grid; grid-template-columns:1fr; gap:10px; }
+  .resumo-row{ display:grid; grid-template-columns:140px 1fr; border:1px solid var(--line); border-radius:12px; overflow:hidden; background:var(--surface); }
+  @media(max-width:600px){ .resumo-row{ grid-template-columns:1fr; } }
+  .resumo-row .rl{ background:var(--surface-2); padding:14px 16px; font-weight:700; font-size:0.82rem; display:flex; align-items:center; }
+  .resumo-row .rr{ padding:14px 16px; font-size:0.86rem; color:var(--ink-soft); }
+  .resumo-row .rr b{ color:var(--ink); }
+
+  /* ---------- CHECKLIST ---------- */
+  .checklist{ display:grid; grid-template-columns:1fr; gap:10px; }
+  @media(min-width:720px){ .checklist{ grid-template-columns:1fr 1fr; } }
+  .check-item{ display:flex; gap:12px; align-items:flex-start; background:var(--surface); border:1px solid var(--line); border-radius:12px; padding:14px 16px; }
+  .check-item input[type=checkbox]{ flex:none; width:20px; height:20px; margin-top:1px; accent-color:var(--accent); cursor:pointer; }
+  .check-item label{ margin:0; font-size:0.9rem; color:var(--ink-soft); cursor:pointer; }
+  .check-item label b{ color:var(--ink); }
+  .checklist-group{ margin-bottom:26px; }
+  .checklist-group h4{ font-size:0.85rem; text-transform:uppercase; letter-spacing:0.06em; color:var(--ink-faint); margin:0 0 12px; }
+
+  /* ---------- KPI DIAGRAM ---------- */
+  .kpi-top{ text-align:center; border:1px solid var(--line); border-radius:14px; padding:16px; background:var(--surface-2); font-family:'Anton'; font-size:0.9rem; letter-spacing:0.04em; margin-bottom:18px; }
+  .kpi-split{ display:grid; grid-template-columns:1fr; gap:14px; margin-bottom:24px; }
+  @media(min-width:680px){ .kpi-split{ grid-template-columns:1fr 1fr; } }
+  .kpi-box{ border:1px solid var(--line); border-radius:14px; padding:18px 20px; background:var(--surface); text-align:center; }
+  .kpi-box .t{ font-family:'Anton'; font-size:0.95rem; margin-bottom:8px; }
+  .kpi-box .d{ font-size:0.86rem; color:var(--ink-soft); }
+
+  /* ---------- FOOTER NEXT ---------- */
+  .next{ background:var(--surface-2); border-radius:18px; padding:32px 30px; border:1px solid var(--line); }
+  .next h2{ margin:0 0 14px; font-size:1.25rem; }
+  .next ol{ margin:0; padding-left:22px; }
+  .next li{ margin-bottom:8px; font-size:0.93rem; color:var(--ink-soft); }
+  .next li b{ color:var(--ink); }
+  .note{ margin-top:20px; font-size:0.85rem; color:var(--ink-faint); border-top:1px solid var(--line); padding-top:16px; }
+
+
+  /* ---------- ROTEIRO / REFERÊNCIAS ---------- */
+  .meta-row{ display:flex; flex-wrap:wrap; gap:8px; margin-top:16px; }
+  .meta-pill{ font-size:11.5px; font-weight:600; background:var(--surface-2); color:var(--ink-soft); padding:4px 10px; border-radius:999px; }
+  a.refchip{ font-size:11.5px; font-weight:700; background:var(--accent); color:#fff; padding:4px 10px; border-radius:999px; text-decoration:none; }
+  ol.roteiro{ list-style:none; margin:0; padding:0; counter-reset:rot; }
+  ol.roteiro li{ counter-increment:rot; display:grid; grid-template-columns:minmax(120px,170px) 1fr; gap:12px; padding:10px 0; border-bottom:1px dashed var(--line); font-size:0.88rem; line-height:1.65; }
+  ol.roteiro li:last-child{ border-bottom:0; }
+  ol.roteiro li b{ color:var(--ink); font-weight:600; }
+  ol.roteiro li span{ color:var(--ink-soft); }
+  @media(max-width:620px){ ol.roteiro li{ grid-template-columns:1fr; gap:2px; } }
+  .copy-box.alt{ background:transparent; border:1px dashed var(--line); }
+  .ref-grid{ display:grid; grid-template-columns:1fr; gap:16px; }
+  @media(min-width:760px){ .ref-grid{ grid-template-columns:1fr 1fr; } }
+  .ref-card{ background:var(--surface); border:1px solid var(--line); border-radius:16px; padding:20px 22px; }
+  .ref-top{ display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; }
+  .ref-num{ font-family:'Anton'; font-size:0.85rem; letter-spacing:0.04em; color:var(--accent); text-transform:uppercase; }
+  .ref-type{ font-size:11px; font-weight:600; color:var(--ink-faint); text-transform:uppercase; letter-spacing:0.06em; }
+  .ref-card h4{ margin:0 0 4px; font-size:1.02rem; }
+  .ref-acc{ font-size:0.82rem; color:var(--ink-faint); margin-bottom:6px; }
+  .ref-card .blk{ margin-top:12px; }
+  .ref-card .blk .lbl{ font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; color:var(--accent); display:block; margin-bottom:4px; }
+  .ref-card .blk p{ font-size:0.88rem; color:var(--ink-soft); margin:0; line-height:1.65; }
+  .ref-foot{ display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap; margin-top:14px; padding-top:12px; border-top:1px solid var(--line); font-size:0.8rem; color:var(--ink-faint); }
+  .ref-foot a{ color:var(--accent); font-weight:600; text-decoration:none; }
+  .prof-grid{ display:grid; grid-template-columns:1fr; gap:12px; }
+  @media(min-width:760px){ .prof-grid{ grid-template-columns:1fr 1fr 1fr; } }
+  .prof-card{ display:block; background:var(--surface); border:1px solid var(--line); border-radius:14px; padding:16px 18px; text-decoration:none; color:inherit; }
+  .prof-card:hover{ border-color:var(--accent); }
+  .prof-card .ph{ font-weight:700; font-size:0.92rem; color:var(--accent); }
+  .prof-card .ph span{ display:block; font-weight:500; font-size:0.75rem; color:var(--ink-faint); }
+  .prof-card .pn{ font-size:0.82rem; font-weight:600; margin:6px 0 4px; }
+  .prof-card p{ margin:0; font-size:0.82rem; color:var(--ink-soft); line-height:1.6; }
+  @media print{
+    .topnav{ display:none; }
+    .post-detail{ display:block !important; }
+  }
+</style>
+</head>
+<body>
+<div class="topnav">
+  <div class="topnav-inner">
+    <div class="topnav-brand">TOCCA no Evento · Estratégia</div>
+    <div class="topnav-links">
+      <a href="#diagnostico">Auditoria</a>
+      <a href="#marca">Marca & Persona</a>
+      <a href="#pilares">Pilares</a>
+      <a href="#referencias">Referências</a>
+      <a href="#pauta">Pauta 30</a>
+      <a href="#checklist">Checklist</a>
+      <a href="#kpis">KPIs</a>
+    </div>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <header class="hero">
+    <div class="eyebrow"><span class="dot"></span>Estratégia de conteúdo · elaborado por Bárbara Cordova</div>
+    <h1 class="display">Auditoria & Estratégia <span>@toccanoevento</span></h1>
+    <p class="lede">Diagnóstico completo do perfil, reposicionamento de marca e persona, referências de conteúdo, pauta de 30 conteúdos com roteiro completo para produção e checklist operacional, com data de veiculação de 13/10 a 19/11, em torno do evento de 07/11.</p>
+    <div class="chip-row">
+      <div class="chip"><b>30</b> roteiros completos</div>
+      <div class="chip"><b>21</b> Feed + <b>9</b> Stories</div>
+      <div class="chip">de <b>13/10</b> a <b>19/11</b></div>
+      <div class="chip">evento: <b>07/11</b> · Balneário Camboriú</div>
+    </div>
+  </header>
+
+  <section id="diagnostico">
+    <div class="sec-head">
+      <span class="sec-num">01</span>
+      <h2>Diagnóstico do perfil</h2>
+      <p>Levantamento direto da conta @toccanoevento — base de comunidade engajada e autêntica, penalizada por falhas de padronização, imprecisão de posicionamento na bio e ausência de processos contínuos.</p>
+    </div>
+
+    <div class="stats-row">
+      <div class="stat-box"><div class="n">29</div><div class="l">Posts publicados</div></div>
+      <div class="stat-box"><div class="n">1.721</div><div class="l">Seguidores</div></div>
+      <div class="stat-box"><div class="n">2.204</div><div class="l">Seguindo</div></div>
+      <div class="stat-box"><div class="n">07</div><div class="l">Reels publicados</div></div>
+    </div>
+
+    <div class="diag-grid">
+      <div class="diag-card">
+        <div class="diag-card-top"><span class="diag-badge">1</span><span class="diag-name">Bio imprecisa</span></div>
+        <div class="diag-split">
+          <div class="diag-col"><span class="lbl">Problema</span><p>Não deixa clara a proposta de valor do projeto para quem chega agora no perfil.</p></div>
+          <div class="diag-col apply"><span class="lbl">Solução</span><p>Redação de nova bio objetiva, com proposta de valor clara, diferenciais e CTA direta — ver comparação abaixo.</p></div>
+        </div>
+      </div>
+      <div class="diag-card">
+        <div class="diag-card-top"><span class="diag-badge">2</span><span class="diag-name">Inconsistência visual no feed</span></div>
+        <div class="diag-split">
+          <div class="diag-col"><span class="lbl">Problema</span><p>Mídias com tamanhos e estilos díspares quebram a identidade visual da marca.</p></div>
+          <div class="diag-col apply"><span class="lbl">Solução</span><p>Aplicação de grid com template fixo, respeitando rigorosamente a paleta preto + roxo + laranja/vermelho.</p></div>
+        </div>
+      </div>
+      <div class="diag-card">
+        <div class="diag-card-top"><span class="diag-badge">3</span><span class="diag-name">Legendas muito curtas</span></div>
+        <div class="diag-split">
+          <div class="diag-col"><span class="lbl">Problema</span><p>Não educam, não constroem narrativa e perdem a história por trás do post.</p></div>
+          <div class="diag-col apply"><span class="lbl">Solução</span><p>Pauta com 30 conteúdos, cada um com roteiro completo e legenda pronta, na Seção 07.</p></div>
+        </div>
+      </div>
+      <div class="diag-card">
+        <div class="diag-card-top"><span class="diag-badge">4</span><span class="diag-name">Destaques desorganizados</span></div>
+        <div class="diag-split">
+          <div class="diag-col"><span class="lbl">Problema</span><p>Ausência de categorias estratégicas fixas pra retenção e esclarecimento de dúvidas.</p></div>
+          <div class="diag-col apply"><span class="lbl">Solução</span><p>Estruturação de 4 Destaques fixos: Artistas, Eventos, FAQ e Inscrições — ver Seção 02.</p></div>
+        </div>
+      </div>
+      <div class="diag-card">
+        <div class="diag-card-top"><span class="diag-badge">5</span><span class="diag-name">Ausência de rotina de respostas</span></div>
+        <div class="diag-split">
+          <div class="diag-col"><span class="lbl">Problema</span><p>Pouca interação pública visível nos comentários da conta.</p></div>
+          <div class="diag-col apply"><span class="lbl">Solução</span><p>Protocolo de resposta ativa em 100% dos comentários nas primeiras 2 horas pós-publicação.</p></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="diag-positivos">
+      <h3>✓ Pontos positivos já consolidados na conta</h3>
+      <div class="pos-list">
+        <div class="pos-item"><span class="mark">✓</span>Link na bio funcional — direciona corretamente pro WhatsApp</div>
+        <div class="pos-item"><span class="mark">✓</span>07 Reels já publicados — falta só consistência técnica</div>
+        <div class="pos-item"><span class="mark">✓</span>Engajamento real — comunidade ativa e comentários genuínos</div>
+        <div class="pos-item"><span class="mark">✓</span>Conteúdo autêntico — comunicação orgânica, sem tom corporativo</div>
+        <div class="pos-item"><span class="mark">✓</span>Material visual de qualidade — fotos em alta resolução</div>
+        <div class="pos-item"><span class="mark">✓</span>Credibilidade do line-up — artistas reais retratados, gera confiança</div>
+        <div class="pos-item"><span class="mark">✓</span>Identidade cromática marcante — preto, roxo e vermelho/laranja</div>
+      </div>
+    </div>
+
+    <h3 style="font-size:1.1rem; margin:40px 0 16px;">Bio atual vs bio proposta</h3>
+    <div class="bio-compare">
+      <div class="bio-card-box">
+        <h4>Antes</h4>
+        <div class="bio-img-wrap"><img src="data:image/png;base64,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" alt="Print da bio atual do @toccanoevento"></div>
+        <div class="bio-caption">"TOCCA · Produtora de eventos itinerantes dedicados a promover arte, cultura e experiências · 📍TOCCA dos Artistas · 📍Balneário Camboriú · Link para inscrição"</div>
+      </div>
+      <div class="bio-card-box proposta">
+        <h4>Depois</h4>
+        <div class="bio-proposta-text">
+          <div>
+            <strong>TOCCA no Evento 🎭</strong><br><br>
+            ✨ Eventos itinerantes de arte, música e cultura em BC<br>
+            🛡️ Espaço seguro, inclusivo e com curadoria real<br>
+            📍 Próximo evento: TOCCA dos Artistas — 07/Nov<br>
+            👇 Garanta sua vaga ou inscreva seu talento
+          </div>
+        </div>
+        <div class="bio-caption">Mantém o direcionamento via WhatsApp, mas delimita em 3 linhas: o que é o projeto, os diferenciais (segurança, inclusão, curadoria) e uma CTA voltada à conversão para 07/11.</div>
+      </div>
+    </div>
+  </section>
+
+  <section id="destaques">
+    <div class="sec-head">
+      <span class="sec-num">02</span>
+      <h2>Destaques temáticos fixos</h2>
+      <p>Os Destaques funcionam como a arquitetura de informação permanente do perfil. Capas padronizadas nas cores da marca, organizados em 4 pilares funcionais.</p>
+    </div>
+    <div class="blueprint">
+      <div class="bp-row">
+        <div class="bp-num">1</div>
+        <div class="bp-content"><div class="name">Artistas</div><div class="note">Apresentação individual da lineup confirmada (série Spotlight) — permite que novos seguidores conheçam o portfólio cultural do evento.</div></div>
+      </div>
+      <div class="bp-row">
+        <div class="bp-num">2</div>
+        <div class="bp-content"><div class="name">Eventos</div><div class="note">Informações práticas: localização exata, horários, checklist do que levar, mapa do espaço e registros de edições anteriores.</div></div>
+      </div>
+      <div class="bp-row">
+        <div class="bp-num">3</div>
+        <div class="bp-content"><div class="name">FAQ</div><div class="note">Respostas diretas e ilustradas pras dúvidas mais frequentes (acesso, segurança, formato) — <b>elimina atrito de conversão na DM.</b></div></div>
+      </div>
+      <div class="bp-row">
+        <div class="bp-num">4</div>
+        <div class="bp-content"><div class="name">Inscrições</div><div class="note">Passo a passo e link direto pra artistas, expositores e performers que querem submeter trabalho pra curadoria.</div></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="marca">
+    <div class="sec-head">
+      <span class="sec-num">03</span>
+      <h2>Diretrizes de marca & persona</h2>
+      <p>Quem a TOCCA é e para quem fala: a base de tom de voz e de decisão de todo o conteúdo que vem a seguir.</p>
+    </div>
+    <div class="two-col">
+      <div class="tocca-card">
+        <h3>🎭 A TOCCA</h3>
+        <div class="f"><div class="lbl">Essência</div><div class="ct">Ecossistema integrado que combina arte, segurança e comunidade genuína — uma experiência de pertencimento cultural, não só entretenimento passageiro.</div></div>
+        <div class="f"><div class="lbl">Posicionamento</div><div class="ct">"O lugar onde arte encontra comunidade, segurança encontra diversão, e talentos locais encontram seu público."</div></div>
+        <div class="f"><div class="lbl">Promessa</div><div class="ct">Experiência memorável e acessível em espaço seguro, guiado por curadoria artística rigorosa e comunidade acolhedora.</div></div>
+        <div class="f"><div class="lbl">Diferenciais</div><div class="ct">Curadoria rigorosa · protocolo transparente de segurança · fomento à comunidade real · repertório cultural profundo</div></div>
+      </div>
+      <div class="persona-card">
+        <h3>👩 Persona: Marina</h3>
+        <div class="persona-grid">
+          <div class="persona-item"><div class="lbl">Idade</div><div class="val">26 anos (20-32)</div></div>
+          <div class="persona-item"><div class="lbl">Profissão</div><div class="val">Designer/Freelancer</div></div>
+          <div class="persona-item"><div class="lbl">Renda</div><div class="val">R$ 2-5k/mês</div></div>
+          <div class="persona-item"><div class="lbl">Localização</div><div class="val">BC / Itajaí (SC)</div></div>
+        </div>
+        <div class="persona-tags">
+          <span>✦ Autenticidade</span><span>✦ Comunidade</span><span>✦ Segurança</span><span>✦ Inclusão</span><span>✦ Criatividade</span>
+        </div>
+        <div class="fric">
+          <b>Motivações:</b> desconexão do digital pra viver experiências reais; conectar com gente na mesma frequência cultural; ambientes seguros, não superlotados e sem assédio.<br><br>
+          <b>Pontos de fricção:</b> receio de ambientes noturnos inseguros ou caóticos; aversão a eventos "comerciais"; ansiedade quanto a horário, localização e estrutura.<br><br>
+          <b>Conexão estratégica:</b> peças de bem-estar, depoimentos reais e bastidores operam como redutores de risco — provam que a TOCCA é organizada e segura.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="pilares">
+    <div class="sec-head">
+      <span class="sec-num">04</span>
+      <h2>5 pilares de conteúdo</h2>
+      <p>Distribuição editorial que move o público ao longo do funil de engajamento e conversão. Cada conteúdo da pauta (Seção 07) pertence a um destes pilares.</p>
+    </div>
+    <div class="pillar-grid">
+      <div class="pillar-card">
+        <div class="pillar-mock"><span class="tag">Topo de funil</span><span class="emoji">🎭</span></div>
+        <div class="pillar-body"><h4>Spotlight Artistas</h4><p>Dá visibilidade e palco aos talentos confirmados. Atrai a audiência própria de cada artista pro perfil da TOCCA, expandindo a base de seguidores.</p></div>
+      </div>
+      <div class="pillar-card">
+        <div class="pillar-mock"><span class="tag">Topo de funil</span><span class="emoji">📚</span></div>
+        <div class="pillar-body"><h4>Educação & Contexto Cultural</h4><p>Dissemina história e raízes dos movimentos culturais via Reels educativos — posiciona a marca como autoridade e capta novos seguidores.</p></div>
+      </div>
+      <div class="pillar-card">
+        <div class="pillar-mock"><span class="tag">Confiança</span><span class="emoji">🎬</span></div>
+        <div class="pillar-body"><h4>Bastidores & Organização</h4><p>Exibe preparação, ensaios e montagem. Transmite transparência, humaniza a organização e atesta o padrão de segurança.</p></div>
+      </div>
+      <div class="pillar-card">
+        <div class="pillar-mock"><span class="tag">Retenção</span><span class="emoji">🤝</span></div>
+        <div class="pillar-body"><h4>Comunidade & Conexões</h4><p>Escuta ativa, enquetes, depoimentos e UGC. Consolida retenção e sentimento de pertencimento.</p></div>
+      </div>
+      <div class="pillar-card" style="grid-column:1/-1;">
+        <div class="pillar-mock"><span class="tag">Redutor de risco</span><span class="emoji">✨</span></div>
+        <div class="pillar-body"><h4>Diversão, Saúde & Descanso</h4><p>Promove redução de danos e bem-estar consciente — orientações sobre hidratação, vestuário e limites, desarmando as objeções de segurança da persona Marina.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="playbook">
+    <div class="sec-head">
+      <span class="sec-num">05</span>
+      <h2>Playbook de algoritmo & otimização técnica</h2>
+      <p>Como cada formato deve ser produzido pra maximizar alcance orgânico, sem depender de verba de anúncio.</p>
+    </div>
+
+    <div class="formula">
+      <div class="formula-head"><span class="formula-name">Reels e SEO local</span><span class="formula-tag">Topo de funil</span></div>
+      <ul>
+        <li>Gancho visual/verbal nos <b>0 a 3 segundos</b> pra reter atenção no feed exploratório.</li>
+        <li>Palavras-chave locais no áudio, legenda e localização: <b>"Balneário Camboriú", "Eventos em BC", "Cultura BC", "Itajaí"</b>.</li>
+        <li>Texto sincronizado na tela (leitura sem áudio) + trilha em tendência pra acelerar distribuição.</li>
+      </ul>
+    </div>
+
+    <div class="formula">
+      <div class="formula-head"><span class="formula-name">Engajamento orgânico sem automação paga</span><span class="formula-tag">Retenção</span></div>
+      <ul>
+        <li>Responder <b>100% dos comentários em até 2h</b> pós-publicação — sinal de alta relevância pro algoritmo.</li>
+        <li>Foco prioritário nos Spotlights — é onde a audiência nova do artista interage pela primeira vez.</li>
+      </ul>
+    </div>
+
+    <div class="formula">
+      <div class="formula-head"><span class="formula-name">Collabs e carrosséis</span><span class="formula-tag">Alcance</span></div>
+      <ul>
+        <li>Marcar o perfil dos artistas nas mídias e usar o recurso de <b>Collab</b> — exibe o post nos dois feeds simultaneamente.</li>
+        <li>Carrosséis de lâminas múltiplas focados em dwell time, salvamentos e compartilhamento por DM.</li>
+      </ul>
+    </div>
+
+    <h3 style="font-size:1rem; margin:30px 0 14px;">Rotina de Stories — 3 blocos diários</h3>
+    <div class="story-arc">
+      <div class="story-block"><div class="sb">Manhã</div><div class="sc"><b>Humanização & Bastidores</b> — registros autênticos, rotina de produção, preparativos.</div></div>
+      <div class="story-block"><div class="sb">Tarde</div><div class="sc"><b>Engajamento ativo</b> — stickers interativos: enquetes, quizzes, caixas de pergunta.</div></div>
+      <div class="story-block"><div class="sb">Noite</div><div class="sc"><b>Chamada utilitária & CTA</b> — direcionamento pra inscrições, contagem regressiva, link na bio.</div></div>
+    </div>
+    <p style="margin-top:14px; font-size:0.88rem; color:var(--ink-faint);">Volume mínimo: 2 a 3 Stories por dia, seguindo essa estrutura, pra manter o perfil no topo da barra de Stories dos seguidores.</p>
+  </section>
+
+  <section id="referencias">
+    <div class="sec-head">
+      <span class="sec-num">06</span>
+      <h2>Referências de conteúdo</h2>
+      <p>Posts reais de outros eventos e marcas que inspiram os formatos da pauta. Cada referência indica o que observar e em quais conteúdos da Seção 07 ela é aplicada.</p>
+    </div>
+    <div class="ref-grid">
+      <div class="ref-card">
+        <div class="ref-top"><span class="ref-num">Ref. 1</span><span class="ref-type">Reel em collab</span></div>
+        <h4>Divulgação de artistas com storytelling</h4>
+        <div class="ref-acc">@marceladebettio × @feirajardimsecreto</div>
+        <div class="blk"><span class="lbl">O que observar</span><p>Em vez de apenas anunciar o nome do artista, o Reel entrega a história dele com a própria voz: a obra, o processo e onde encontrá-la. A legenda complementa com contexto (exposição, local de venda) e o post é publicado em collab, aparecendo nos dois feeds.</p></div>
+        <div class="blk"><span class="lbl">Como aplicar na TOCCA</span><p>Spotlights em formato de história, não de cartaz. Gravar a voz do artista respondendo 5 perguntas e cobrir com imagens do processo.</p></div>
+        <div class="ref-foot"><span>Usado nos conteúdos: <b>#3, #6, #9, #19, #22, #26</b></span><a href="https://www.instagram.com/p/DeR9ZrmpMwk/" target="_blank" rel="noopener">Ver post ↗</a></div>
+      </div>
+      <div class="ref-card">
+        <div class="ref-top"><span class="ref-num">Ref. 2</span><span class="ref-type">Carrossel</span></div>
+        <h4>História do local e do negócio</h4>
+        <div class="ref-acc">@feirajardimsecreto</div>
+        <div class="blk"><span class="lbl">O que observar</span><p>A legenda abre com o conceito (“o centro é feito de encontros, diversidade e movimento”) e liga o evento à história de 13 anos do projeto e do edifício que o recebe. Fecha com o convite para salvar o post e traz data, horário e endereço completos, tudo no mesmo texto.</p></div>
+        <div class="blk"><span class="lbl">Como aplicar na TOCCA</span><p>Contar de onde vem a TOCCA e a história do espaço (ou das pessoas da família/equipe que o criaram). Sempre fechar a legenda com data, horário, endereço e o convite “salva este post”.</p></div>
+        <div class="ref-foot"><span>Usado nos conteúdos: <b>#1, #7</b></span><a href="https://www.instagram.com/p/DeSLVqgGSZX/" target="_blank" rel="noopener">Ver post ↗</a></div>
+      </div>
+      <div class="ref-card">
+        <div class="ref-top"><span class="ref-num">Ref. 3</span><span class="ref-type">Post de perguntas e respostas</span></div>
+        <h4>Responder as dúvidas mais enviadas</h4>
+        <div class="ref-acc">@berthasalles</div>
+        <div class="blk"><span class="lbl">O que observar</span><p>A publicação anuncia que o evento está chegando e convida o público a tirar as dúvidas, num tom leve e com identidade própria, transformando as perguntas recebidas em conteúdo. É assim que informações de localização e logística viram um post que as pessoas salvam e compartilham.</p></div>
+        <div class="blk"><span class="lbl">Como aplicar na TOCCA</span><p>Coletar perguntas na caixinha (conteúdo 2) e nas DMs, escolher as 6 mais recorrentes e responder em formato de conversa, incluindo mapa, horário e valor.</p></div>
+        <div class="ref-foot"><span>Usado nos conteúdos: <b>#2, #10, #11, #14, #16</b></span><a href="https://www.instagram.com/p/DcEH3jwlcAJ/" target="_blank" rel="noopener">Ver post ↗</a></div>
+      </div>
+      <div class="ref-card">
+        <div class="ref-top"><span class="ref-num">Ref. 4</span><span class="ref-type">Post informativo</span></div>
+        <h4>DJ e cultura aliados ao anúncio do evento</h4>
+        <div class="ref-acc">@papayalabel_ (Barra Grooves, com @culturabc)</div>
+        <div class="blk"><span class="lbl">O que observar</span><p>A legenda defende uma ideia cultural (“música eletrônica também é cultura, e cultura é para todos”), contextualiza a cena local e só depois entrega a informação prática: local, data, horário e gratuidade. O anúncio vira conteúdo de valor, não só divulgação.</p></div>
+        <div class="blk"><span class="lbl">Como aplicar na TOCCA</span><p>Para o DJ do evento: história do gênero + conexão com a cena local + horário do set e informações do evento no mesmo post.</p></div>
+        <div class="ref-foot"><span>Usado nos conteúdos: <b>#4, #18</b></span><a href="https://www.instagram.com/p/DeRvqvph_lE/" target="_blank" rel="noopener">Ver post ↗</a></div>
+      </div>
+      <div class="ref-card">
+        <div class="ref-top"><span class="ref-num">Ref. 5</span><span class="ref-type">Reel com áudio</span></div>
+        <h4>Áudio do público falando da expectativa</h4>
+        <div class="ref-acc">@instadatara</div>
+        <div class="blk"><span class="lbl">O que observar</span><p>O Reel usa um áudio espontâneo de uma cliente (“as pessoas estão pirando”) como protagonista, com legenda curta e hashtag de campanha. A voz real vale mais que qualquer texto de divulgação.</p></div>
+        <div class="blk"><span class="lbl">Como aplicar na TOCCA</span><p>Coletar áudios de 5–10s de pessoas ansiosas pelo evento (e depois, de quem foi), legendar e editar em sequência.</p></div>
+        <div class="ref-foot"><span>Usado nos conteúdos: <b>#17, #23, #25, #28</b></span><a href="https://www.instagram.com/p/DdcdyqRv1a3/" target="_blank" rel="noopener">Ver post ↗</a></div>
+      </div>
+      <div class="ref-card">
+        <div class="ref-top"><span class="ref-num">Ref. 6</span><span class="ref-type">Vídeo de produto</span></div>
+        <h4>Comidas à venda, com valor fixo e quantidade limitada</h4>
+        <div class="ref-acc">@botecoporamor</div>
+        <div class="blk"><span class="lbl">O que observar</span><p>Vídeo curto e apetitoso mostrando os pratos novos, com chamada direta (“vem experimentar”) e crédito de quem filmou. Funciona porque o produto é o personagem.</p></div>
+        <div class="blk"><span class="lbl">Como aplicar na TOCCA</span><p>Mostrar os pratos que estarão no evento, com preço único e limite de porções por barraca para criar urgência.</p></div>
+        <div class="ref-foot"><span>Usado nos conteúdos: <b>#12, #14</b></span><a href="https://www.instagram.com/p/DdJtN5zRurC/" target="_blank" rel="noopener">Ver post ↗</a></div>
+      </div>
+      <div class="ref-card">
+        <div class="ref-top"><span class="ref-num">Ref. 7</span><span class="ref-type">Carrossel “Guia de curadoria”</span></div>
+        <h4>Guia para quem quer participar das próximas edições</h4>
+        <div class="ref-acc">@feiradasideias</div>
+        <div class="blk"><span class="lbl">O que observar</span><p>Carrossel com o título “Guia de curadoria” que explica o que a feira busca, abre inscrições e deixa claras as regras: análise cuidadosa de cada inscrição e contato apenas com os selecionados. Reduz mensagens repetidas e atrai candidatos qualificados.</p></div>
+        <div class="blk"><span class="lbl">Como aplicar na TOCCA</span><p>Publicar o guia ao fim da campanha: o que a TOCCA procura, quem pode participar, como se inscrever, como é a seleção, prazos.</p></div>
+        <div class="ref-foot"><span>Usado nos conteúdos: <b>#29, #30</b></span><a href="https://www.instagram.com/p/Db3pwDHkc2z/" target="_blank" rel="noopener">Ver post ↗</a></div>
+      </div>
+    </div>
+    <h3 style="font-size:1rem; margin:34px 0 8px;">Perfis para acompanhar</h3>
+    <p style="font-size:0.88rem; color:var(--ink-soft); margin:0 0 14px;">Perfis de feiras e eventos criativos que servem de inspiração de linguagem, organização do feed e comunicação de programação.</p>
+    <div class="prof-grid">
+      <a class="prof-card" href="https://www.instagram.com/feirajardimsecreto/" target="_blank" rel="noopener"><div class="ph">@feirajardimsecreto <span>203 mil seguidores</span></div><div class="pn">Rede Jardim Secreto</div><p>Feira de criadores com grande presença em São Paulo; comemora 13 anos. Observar: uso de collabs com artistas e expositores, comunicação de datas e locais, e como contam a história do espaço.</p></a>
+      <a class="prof-card" href="https://www.instagram.com/bucinhosuado/" target="_blank" rel="noopener"><div class="ph">@bucinhosuado <span>17 mil seguidores</span></div><div class="pn">bucinho suado</div><p>Perfil de evento de porte próximo ao da TOCCA. Observar: linguagem, identidade visual consistente, tom de voz e frequência de postagem.</p></a>
+      <a class="prof-card" href="https://www.instagram.com/feirapretainstituto/" target="_blank" rel="noopener"><div class="ph">@feirapretainstituto <span>42 mil seguidores</span></div><div class="pn">Instituto Feira Preta</div><p>Instituto ligado à cultura e ao empreendedorismo negro. Observar: posicionamento institucional, curadoria, e como comunicam propósito junto à programação.</p></a>
+      <a class="prof-card" href="https://www.instagram.com/feiradasideias/" target="_blank" rel="noopener"><div class="ph">@feiradasideias <span>89 mil seguidores</span></div><div class="pn">Feira das Ideias</div><p>Feira de marcas autorais. Observar: guia de curadoria, divulgação de expositores, chamadas para inscrição e organização do feed.</p></a>
+      <a class="prof-card" href="https://www.instagram.com/mixturacriativa/" target="_blank" rel="noopener"><div class="ph">@mixturacriativa <span>96 mil seguidores</span></div><div class="pn">Mixtura Criativa — Feiras e Festivais Criativos</div><p>Produtora de feiras e festivais criativos. Observar: calendário editorial de eventos, formatos de divulgação de edições e consistência visual.</p></a>
+    </div>
+  </section>
+
+  <section id="pauta">
+    <div class="sec-head">
+      <span class="sec-num">07</span>
+      <h2>Pauta editorial: 30 conteúdos (13/10 a 19/11)</h2>
+      <p>Cada card traz o roteiro completo: objetivo, formato, passo a passo (slide a slide ou frame a frame), legenda pronta, hashtags, áudio, mecânica de engajamento e o material que precisa ser reunido. Clique no título para abrir. Trechos entre [colchetes] são dados do evento a preencher quando confirmados.</p>
+    </div>
+    <div class="week-group">
+      <div class="week-label"><span>SEMANA 1 · 13-17/10</span><span class="foco">Lançamento oficial · Conteúdos 1 a 5</span></div>
+      <details class="post-card">
+        <summary>
+          <div class="post-date2"><span class="dow">TER</span><span class="dnum">13</span></div>
+          <div class="post-summary-mid">
+            <span class="pillar-pill">🎭 Spotlight Artistas</span>
+            <div class="post-title">1. Anúncio Oficial — "Tá vindo: TOCCA dos Artistas"</div>
+          </div>
+          <span class="post-badge feed">Feed</span>
+          <span class="chevron">▶</span>
+        </summary>
+        <div class="post-detail">
+          <div class="meta-row"><span class="meta-pill">Carrossel</span><span class="meta-pill">13/10</span><a class="refchip" href="#referencias">Ref. 2</a></div>
+          <div class="blk"><span class="lbl">Objetivo</span><p>Post-âncora da campanha. Comunica em segundos o quê, quando, onde e por quê, e gera compartilhamento imediato nos Stories de artistas, parceiros e equipe.</p></div>
+          <div class="blk"><span class="lbl">Formato e especificações</span><p>Carrossel 5 slides · 1080×1350 (4:5) · publicar às 12h ou 19h (horários de maior fluxo; ajustar pelo Insights após a 1ª semana).</p></div>
+          <div class="blk"><span class="lbl">Roteiro passo a passo</span><ol class="roteiro"><li><b>Slide 1 · Capa</b><span>Foto de edição anterior com overlay escuro. Título grande: TOCCA DOS ARTISTAS. Linha menor: 07/11 · Balneário Camboriú. Selo no canto: “Tá vindo”.</span></li><li><b>Slide 2 · O que é</b><span>Texto na tela: “Arte, música e comunidade no mesmo lugar. Com curadoria de verdade e um espaço seguro pra você ser quem é.”</span></li><li><b>Slide 3 · O que vai rolar</b><span>Três tópicos com ícone: 🎤 [apresentações de artistas locais] · 🎨 [feira/expositores, se houver] · 🎧 [DJ/som]. Substituir pelos itens reais da programação.</span></li><li><b>Slide 4 · Onde e quando</b><span>07/11 · [horário de abertura às horário de encerramento] · [endereço completo] · Entrada: [gratuita / valor]. Se possível, ponto de referência.</span></li><li><b>Slide 5 · Convite</b><span>“Salva este post pra não esquecer e marca quem vai com você.” Abaixo: “Artista ou expositor? Inscrição no link da bio.”</span></li></ol></div>
+          <div class="blk"><span class="lbl">Legenda pronta</span><div class="copy-box">TOCCA DOS ARTISTAS está chegando 🎭
+
+07 de novembro, em Balneário Camboriú.
+
+Um encontro feito pra quem respira arte, música e comunidade — com curadoria de verdade, estrutura organizada e um espaço onde você pode ser exatamente quem é.
+
+A partir de hoje, todo dia tem novidade: artistas confirmados, programação, bastidores e tudo que você precisa saber pra viver essa experiência com a gente.
+
+📍 [local] · 📅 07/11 · 🕒 [horário]
+
+Salva este post pra não esquecer e marca quem vai com você 💜
+
+É artista ou expositor? Faz a sua inscrição pelo link da bio.</div></div>
+          <div class="post-grid2">
+            <div class="blk"><span class="lbl">Hashtags</span><p>#TOCCA #TOCCAdosArtistas #BalneárioCamboriú #EventosBC #CulturaBC #ArteLocal #FeiraDeArte</p></div>
+            <div class="blk"><span class="lbl">Áudio / trilha</span><p>Carrossel não usa áudio. Se quiser versão em Reel do mesmo anúncio, usar trilha instrumental em alta (buscar na aba “Em alta” do Reels no dia da publicação).</p></div>
+            <div class="blk"><span class="lbl">Mecânica de engajamento</span><p>Fixar no topo do perfil. Pedir aos artistas e parceiros que compartilhem nos Stories e marcar @toccanoevento. Responder todos os comentários em até 2h. Repostar nos Stories com sticker de Link para a inscrição.</p></div>
+            <div class="blk"><span class="lbl">Material a reunir</span><p>Fotos em alta de edições anteriores · logotipo (PNG fundo transparente) · horário, endereço e valor de entrada confirmados · link do formulário de inscrição.</p></div>
+          </div>
+          
+        </div>
+      </details>
+      <details class="post-card">
+        <summary>
+          <div class="post-date2"><span class="dow">QUA</span><span class="dnum">14</span></div>
+          <div class="post-summary-mid">
+            <span class="pillar-pill">🎬 Bastidores</span>
+            <div class="post-title">2. Stories — Bastidores da organização + caixinha de perguntas</div>
+          </div>
+          <span class="post-badge story">Stories</span>
+          <span class="chevron">▶</span>
+        </summary>
+        <div class="post-detail">
+          <div class="meta-row"><span class="meta-pill">Stories (5 frames)</span><span class="meta-pill">14/10</span><a class="refchip" href="#referencias">Ref. 3</a></div>
+          <div class="blk"><span class="lbl">Objetivo</span><p>Humanizar a marca logo após o anúncio, mostrar as pessoas por trás do evento e já coletar as dúvidas reais do público (que viram o conteúdo 14).</p></div>
+          <div class="blk"><span class="lbl">Formato e especificações</span><p>5 frames · 1080×1920 (9:16) · vídeos de 5 a 10s · postar ao longo do dia (manhã: bastidor; tarde: caixinha; noite: repost do anúncio).</p></div>
+          <div class="blk"><span class="lbl">Roteiro passo a passo</span><ol class="roteiro"><li><b>Frame 1 · Manhã (vídeo 5–10s)</b><span>Mesa de trabalho: planilha, caderno, café, celular com mensagens de artistas. Texto: “bastidores de organizar a TOCCA dos Artistas 👀”.</span></li><li><b>Frame 2 · Rosto da marca (vídeo 15s)</b><span>Quem organiza fala para a câmera: “Oi, eu sou [nome], e a gente tá montando a TOCCA dos Artistas pra 07/11. Hoje foi dia de [tarefa real: fechar artistas / visitar o local / orçar som]”.</span></li><li><b>Frame 3 · Prova social</b><span>Print (com autorização) de um artista confirmando presença, com o nome borrado se ainda for segredo. Texto: “alguém acabou de confirmar… 🤫”. Sticker de música ao fundo.</span></li><li><b>Frame 4 · Tarde — Caixinha</b><span>Sticker de Perguntas: “O que você quer saber sobre o evento? 👇”. Fundo na paleta da marca.</span></li><li><b>Frame 5 · Noite — Repost</b><span>Repost do carrossel de anúncio (conteúdo 1) com sticker de Link para a inscrição.</span></li></ol></div>
+          <div class="blk"><span class="lbl">Legenda pronta</span><div class="copy-box">Stories não têm legenda; usar o texto na tela. Resposta padrão para quem enviar pergunta na caixinha: “Boa pergunta! Vou responder nos próximos Stories 💜”.</div></div>
+          <div class="post-grid2">
+            <div class="blk"><span class="lbl">Hashtags</span><p>Nos Stories, usar apenas a hashtag #TOCCAdosArtistas no sticker de hashtag e o sticker de localização (Balneário Camboriú).</p></div>
+            <div class="blk"><span class="lbl">Áudio / trilha</span><p>Som ambiente real + música de fundo em volume baixo via sticker de Música (escolher faixa instrumental).</p></div>
+            <div class="blk"><span class="lbl">Mecânica de engajamento</span><p>Registrar todas as perguntas recebidas numa planilha (pergunta · quantas vezes apareceu). As 5–7 mais repetidas viram o carrossel do conteúdo 14. Responder os melhores no dia seguinte.</p></div>
+            <div class="blk"><span class="lbl">Material a reunir</span><p>Equipe grava 3 clipes curtos de bastidor durante o dia · autorização do artista para exibir o print da conversa.</p></div>
+          </div>
+          
+        </div>
+      </details>
+      <details class="post-card">
+        <summary>
+          <div class="post-date2"><span class="dow">QUI</span><span class="dnum">15</span></div>
+          <div class="post-summary-mid">
+            <span class="pillar-pill">🎭 Spotlight Artistas</span>
+            <div class="post-title">3. Spotlight #1 — Reel de storytelling com a voz do artista</div>
+          </div>
+          <span class="post-badge feed">Feed</span>
+          <span class="chevron">▶</span>
+        </summary>
+        <div class="post-detail">
+          <div class="meta-row"><span class="meta-pill">Reel</span><span class="meta-pill">15/10</span><a class="refchip" href="#referencias">Ref. 1</a></div>
+          <div class="blk"><span class="lbl">Objetivo</span><p>Apresentar o primeiro artista contando a própria história, com sua voz. Gera identificação e atrai a audiência do artista para o perfil da TOCCA.</p></div>
+          <div class="blk"><span class="lbl">Formato e especificações</span><p>Reel 30–45s · 1080×1920 (9:16) · usar recurso Collab com o artista · publicar às 19h.</p></div>
+          <div class="blk"><span class="lbl">Roteiro passo a passo</span><ol class="roteiro"><li><b>0–3s · Gancho</b><span>Primeira frase mais forte da fala do artista, em texto grande. Exemplos: “Eu comecei a [fazer arte] sem saber que ia virar minha vida.” / “Essa obra levou [tempo] pra ficar pronta.”</span></li><li><b>3–12s · O fazer</b><span>Imagens de apoio (b-roll): mãos trabalhando, ateliê/estúdio, instrumento, ensaio, materiais. Cortes de 1–2s. A voz do artista segue em off.</span></li><li><b>12–25s · A história</b><span>Voz do artista respondendo: como começou, o que o move, um momento que mudou tudo. Legenda sincronizada na tela (leitura sem som).</span></li><li><b>25–35s · A obra / o som</b><span>Mostrar o resultado final: obra pronta, trecho de música, performance. Texto: “Você vai ver isso de perto na TOCCA.”</span></li><li><b>35–40s · CTA</b><span>Card final: [Nome do artista] · @[perfil] · 07/11 · TOCCA dos Artistas. Texto: “Segue e marca quem vai com você.”</span></li></ol></div>
+          <div class="blk"><span class="lbl">Legenda pronta</span><div class="copy-box">Antes de ser palco, foi processo. 🎙️
+
+[Nome do artista] conta, com as próprias palavras, como [começou / chegou até aqui]. Uma história de [qualidade que define: persistência, descoberta, ofício] que vai estar na TOCCA dos Artistas no dia 07/11.
+
+🎭 Segue @[perfil do artista]
+📍 [local] · 07/11
+
+Qual foi a primeira vez que a arte te pegou de jeito? Conta aqui nos comentários 👇</div></div>
+          <div class="post-grid2">
+            <div class="blk"><span class="lbl">Hashtags</span><p>#TOCCA #TOCCAdosArtistas #BalneárioCamboriú #EventosBC #CulturaBC #ArteLocal #Storytelling #ArtistaLocal</p></div>
+            <div class="blk"><span class="lbl">Áudio / trilha</span><p>Voz do próprio artista gravada em áudio limpo (celular perto da boca, ambiente silencioso) + trilha instrumental baixa (10–15% do volume). Evitar músicas com letra por cima da fala.</p></div>
+            <div class="blk"><span class="lbl">Mecânica de engajamento</span><p>Publicar em Collab. Pedir que o artista compartilhe nos Stories dele e fixe o comentário com a data do evento. Perguntar na legenda pra gerar comentários.</p></div>
+            <div class="blk"><span class="lbl">Material a reunir</span><p>Áudio do artista respondendo 5 perguntas: (1) Como você começou? (2) Qual foi o momento que mudou tudo? (3) O que você cria hoje e por quê? (4) O que vai levar pra TOCCA? (5) O que gostaria que o público sentisse? · 10–15 clipes de apoio na vertical · foto em alta · @ do perfil.</p></div>
+          </div>
+          
+        </div>
+      </details>
+      <details class="post-card">
+        <summary>
+          <div class="post-date2"><span class="dow">SEX</span><span class="dnum">16</span></div>
+          <div class="post-summary-mid">
+            <span class="pillar-pill">📚 Educação</span>
+            <div class="post-title">4. Reel educativo — A origem do Hip Hop (adaptável ao estilo do evento)</div>
+          </div>
+          <span class="post-badge feed">Feed</span>
+          <span class="chevron">▶</span>
+        </summary>
+        <div class="post-detail">
+          <div class="meta-row"><span class="meta-pill">Reel</span><span class="meta-pill">16/10</span><a class="refchip" href="#referencias">Ref. 4</a></div>
+          <div class="blk"><span class="lbl">Objetivo</span><p>Posicionar a TOCCA como curadora cultural e atrair novos seguidores pelo topo do funil. Conteúdo de “você sabia?” com alto potencial de salvamento e envio por DM.</p></div>
+          <div class="blk"><span class="lbl">Formato e especificações</span><p>Reel 25–30s · 9:16 · texto dinâmico na tela · publicar às 18h.</p></div>
+          <div class="blk"><span class="lbl">Roteiro passo a passo</span><ol class="roteiro"><li><b>0–3s · Gancho</b><span>Texto grande: “O Hip Hop não nasceu num estúdio. Nasceu numa festa de bairro.”</span></li><li><b>3–9s · Fato 1</b><span>“11 de agosto de 1973, Bronx, Nova York. Numa festa de volta às aulas, o DJ Kool Herc tocou no salão de um prédio da Sedgwick Avenue.” Imagem: fotos de arquivo (domínio público) ou ilustração própria.</span></li><li><b>9–15s · Fato 2</b><span>“Ele repetia o trecho mais dançante dos discos, o break, e os dançarinos (os b-boys e b-girls) transformaram aquilo em dança.”</span></li><li><b>15–21s · Fato 3</b><span>“Os 4 elementos: DJ, MC, breaking e grafite.” Mostrar cada um em 1,5s com ícone/foto.</span></li><li><b>21–26s · Brasil</b><span>“No Brasil, chegou nos anos 80, nas ruas de São Paulo, com a dança de rua e o rap.”</span></li><li><b>26–30s · Conexão + CTA</b><span>“Essa raiz continua viva. Dia 07/11, na TOCCA dos Artistas.” Salva pra lembrar e manda pra quem ama cultura de rua.</span></li></ol></div>
+          <div class="blk"><span class="lbl">Legenda pronta</span><div class="copy-box">Cultura não é só o que acontece no palco. É história, raiz e pertencimento. 🎶
+
+O Hip Hop nasceu de uma festa de bairro, em 1973, e hoje é uma das maiores linguagens artísticas do mundo. Os quatro elementos (DJ, MC, breaking e grafite) seguem vivos, inclusive aqui em Balneário Camboriú.
+
+Na TOCCA dos Artistas, a gente leva essa curadoria a sério. 07/11, vem ver de perto.
+
+💾 Salva pra não esquecer e manda pra quem curte cultura de rua.</div></div>
+          <div class="post-grid2">
+            <div class="blk"><span class="lbl">Hashtags</span><p>#TOCCA #TOCCAdosArtistas #BalneárioCamboriú #EventosBC #CulturaBC #ArteLocal #HipHop #CulturaDeRua #VocêSabia</p></div>
+            <div class="blk"><span class="lbl">Áudio / trilha</span><p>Trilha em alta do Reels no dia (preferir faixa de rap/boom bap instrumental, sem letra por cima do texto) ou batida instrumental livre de direitos da biblioteca do Instagram.</p></div>
+            <div class="blk"><span class="lbl">Mecânica de engajamento</span><p>Estilo “você sabia?” com texto dinâmico. Pedir que a equipe e os artistas salvem e compartilhem por DM. Comentar com um fato extra nos primeiros minutos.</p></div>
+            <div class="blk"><span class="lbl">Material a reunir</span><p>Confirmar com os artistas qual movimento é o mais representativo da lineup. Se o evento for mais eletrônico/house, usar a versão B abaixo.</p></div>
+          </div>
+          <div class="blk"><span class="lbl">Versão B · House Music</span><div class="copy-box alt">Gancho: “A house music tem nome de clube.” Fato: nasceu em Chicago, no início dos anos 80, e o nome vem do clube The Warehouse, onde o DJ Frankie Knuckles tocava. Depois: espalhou-se por Detroit, Nova York e Europa. Conexão: a cena eletrônica faz parte da identidade de Balneário Camboriú e do evento.</div></div><div class="blk"><span class="lbl">Checagem</span><div class="copy-box alt">Antes de publicar, conferir datas e nomes numa segunda fonte (ex.: Britannica, Red Bull Music Academy, Museu da Imagem e do Som).</div></div>
+        </div>
+      </details>
+      <details class="post-card">
+        <summary>
+          <div class="post-date2"><span class="dow">SAB</span><span class="dnum">17</span></div>
+          <div class="post-summary-mid">
+            <span class="pillar-pill">🤝 Comunidade</span>
+            <div class="post-title">5. Stories — Enquete "Qual artista você mais quer ver?"</div>
+          </div>
+          <span class="post-badge story">Stories</span>
+          <span class="chevron">▶</span>
+        </summary>
+        <div class="post-detail">
+          <div class="meta-row"><span class="meta-pill">Stories (4 frames)</span><span class="meta-pill">17/10</span></div>
+          <div class="blk"><span class="lbl">Objetivo</span><p>Gerar interação direta (sinal forte pro algoritmo) e descobrir quais artistas despertam mais interesse.</p></div>
+          <div class="blk"><span class="lbl">Formato e especificações</span><p>4 frames · 9:16 · postar a partir das 11h; resultado parcial às 17h; resultado final à noite.</p></div>
+          <div class="blk"><span class="lbl">Roteiro passo a passo</span><ol class="roteiro"><li><b>Frame 1 · Colagem</b><span>Fotos dos artistas já anunciados lado a lado com a paleta da marca. Texto: “Quem você quer ver primeiro?”</span></li><li><b>Frame 2 · Enquete</b><span>Sticker de Enquete com 2 opções (dois artistas). Se houver mais de 2 artistas, criar 2 enquetes em frames diferentes.</span></li><li><b>Frame 3 · Parcial</b><span>Print do resultado parcial, com texto: “Tá disputado! Ainda dá tempo de votar 👀”.</span></li><li><b>Frame 4 · Final + deslizante</b><span>Resultado final: “[Nome] ganhou com [X]%!” Em seguida, sticker de Slider de emoji: “Quão ansioso(a) você tá pro dia 07/11?”</span></li></ol></div>
+          <div class="blk"><span class="lbl">Legenda pronta</span><div class="copy-box">Texto na tela. Quando o resultado sair, usar a informação no conteúdo 10 (“Vocês falaram”).</div></div>
+          <div class="post-grid2">
+            <div class="blk"><span class="lbl">Hashtags</span><p>Sticker de localização + #TOCCAdosArtistas.</p></div>
+            <div class="blk"><span class="lbl">Áudio / trilha</span><p>Música de fundo escolhida pelo sticker de Música, volume baixo.</p></div>
+            <div class="blk"><span class="lbl">Mecânica de engajamento</span><p>Cada voto é uma interação. Mencionar os artistas citados na enquete para que eles repostem e levem a própria base para votar.</p></div>
+            <div class="blk"><span class="lbl">Material a reunir</span><p>Fotos de pelo menos 2 artistas já anunciados · autorização para marcá-los.</p></div>
+          </div>
+          
+        </div>
+      </details>
+    </div>
+    <div class="week-group">
+      <div class="week-label"><span>SEMANA 2 · 20-24/10</span><span class="foco">Construção do lineup · Conteúdos 6 a 9</span></div>
+      <details class="post-card">
+        <summary>
+          <div class="post-date2"><span class="dow">TER</span><span class="dnum">20</span></div>
+          <div class="post-summary-mid">
+            <span class="pillar-pill">🎭 Spotlight Artistas</span>
+            <div class="post-title">6. Spotlight #2 — Carrossel "A história de [Nome] em 6 passos"</div>
+          </div>
+          <span class="post-badge feed">Feed</span>
+          <span class="chevron">▶</span>
+        </summary>
+        <div class="post-detail">
+          <div class="meta-row"><span class="meta-pill">Carrossel</span><span class="meta-pill">20/10</span><a class="refchip" href="#referencias">Ref. 1</a></div>
+          <div class="blk"><span class="lbl">Objetivo</span><p>Manter o ritmo de revelação da lineup e aprofundar a história pessoal de um novo artista, com foco em salvamentos e swipe.</p></div>
+          <div class="blk"><span class="lbl">Formato e especificações</span><p>Carrossel 6 slides · 1080×1350 · publicar às 12h · Collab com o artista.</p></div>
+          <div class="blk"><span class="lbl">Roteiro passo a passo</span><ol class="roteiro"><li><b>Slide 1 · Capa</b><span>Retrato do artista + frase-gancho dele(a), entre aspas. Ex.: “Eu pintei minha primeira parede aos 14 anos.” Selo: Spotlight TOCCA.</span></li><li><b>Slide 2 · Onde tudo começou</b><span>Foto antiga ou do lugar de origem + 2 linhas: cidade, família, primeiro contato com a arte.</span></li><li><b>Slide 3 · O momento que mudou tudo</b><span>Um marco real: primeira apresentação, primeira venda, prêmio, mudança de cidade. Uma frase curta + data.</span></li><li><b>Slide 4 · O que cria hoje</b><span>Foto da obra, do show ou do processo + descrição em 2 linhas do estilo.</span></li><li><b>Slide 5 · O que traz pra TOCCA</b><span>O que será apresentado em 07/11, [horário da apresentação], formato (show, exposição, performance).</span></li><li><b>Slide 6 · Fecho</b><span>Nome + @ + data do evento. Texto: “Segue [Nome] e guarda a data.”</span></li></ol></div>
+          <div class="blk"><span class="lbl">Legenda pronta</span><div class="copy-box">Todo artista tem uma história que o palco não conta. 🎨
+
+Em 6 passos, [Nome] mostra como [chegou até aqui] e o que vai trazer pra TOCCA dos Artistas em 07/11.
+
+Desliza pra conhecer 👉
+
+🎭 Segue @[perfil]
+📍 [local] · 📅 07/11
+
+E você, qual foi o momento em que descobriu que queria viver de arte? Comenta aí 💜</div></div>
+          <div class="post-grid2">
+            <div class="blk"><span class="lbl">Hashtags</span><p>#TOCCA #TOCCAdosArtistas #BalneárioCamboriú #EventosBC #CulturaBC #ArteLocal #Spotlight #ArtistaIndependente</p></div>
+            <div class="blk"><span class="lbl">Áudio / trilha</span><p>Carrossel não usa áudio. Opcional: adicionar música do Instagram no carrossel (ícone de nota) com faixa instrumental.</p></div>
+            <div class="blk"><span class="lbl">Mecânica de engajamento</span><p>Pergunta aberta na legenda. Pedir que o artista comente e reposte. Fixar um comentário com o link de inscrição.</p></div>
+            <div class="blk"><span class="lbl">Material a reunir</span><p>Questionário respondido pelo artista: onde nasceu, como começou, marco da carreira, o que apresentará, 3 fotos (retrato, processo, obra) em alta · @ do perfil.</p></div>
+          </div>
+          
+        </div>
+      </details>
+      <details class="post-card">
+        <summary>
+          <div class="post-date2"><span class="dow">QUI</span><span class="dnum">22</span></div>
+          <div class="post-summary-mid">
+            <span class="pillar-pill">🎬 Bastidores</span>
+            <div class="post-title">7. Reel — A história por trás da TOCCA e do lugar do evento</div>
+          </div>
+          <span class="post-badge feed">Feed</span>
+          <span class="chevron">▶</span>
+        </summary>
+        <div class="post-detail">
+          <div class="meta-row"><span class="meta-pill">Reel</span><span class="meta-pill">22/10</span><a class="refchip" href="#referencias">Ref. 2</a></div>
+          <div class="blk"><span class="lbl">Objetivo</span><p>Contar de onde vem a TOCCA e a história do espaço (ou da família/pessoas que criaram o projeto). Gera conexão afetiva, confiança e diferencia a marca de eventos genéricos.</p></div>
+          <div class="blk"><span class="lbl">Formato e especificações</span><p>Reel 40–60s · 9:16 · narração em off ou fala para a câmera · publicar às 19h.</p></div>
+          <div class="blk"><span class="lbl">Roteiro passo a passo</span><ol class="roteiro"><li><b>0–4s · Gancho</b><span>Texto: “Tudo começou com [fato real e curioso, ex.: uma mesa na calçada / um grupo de amigos / uma sala vazia].”</span></li><li><b>4–15s · O começo</b><span>Fotos antigas ou vídeo do primeiro encontro/edição. Voz: “Em [ano], [quem] teve a ideia de [o quê] porque [motivo]”.</span></li><li><b>15–30s · A virada</b><span>Momento em que o projeto cresceu ou ganhou o espaço atual. Imagens do lugar (fachada, interior, detalhes que contem a história do imóvel/da rua).</span></li><li><b>30–45s · O hoje</b><span>Equipe em ação, artistas, público. Voz: “Hoje a TOCCA é [o que é], e dia 07/11 a gente abre as portas pra [novo capítulo]”.</span></li><li><b>45–55s · CTA</b><span>“Vem fazer parte dessa história.” Data + local + link na bio.</span></li></ol></div>
+          <div class="blk"><span class="lbl">Legenda pronta</span><div class="copy-box">Todo lugar tem uma história. A da TOCCA começa assim: [uma frase com o fato central]. 🏛️
+
+[2–3 linhas contando a origem: quem criou, por quê, o que mudou ao longo do tempo, qual a relação com Balneário Camboriú / com o espaço do evento.]
+
+No dia 07/11, essa história ganha mais um capítulo. E você pode estar nele.
+
+📍 [local] · 📅 07/11
+Conta pra gente: qual lugar da cidade tem uma história que você adora? 👇</div></div>
+          <div class="post-grid2">
+            <div class="blk"><span class="lbl">Hashtags</span><p>#TOCCA #TOCCAdosArtistas #BalneárioCamboriú #EventosBC #CulturaBC #ArteLocal #HistóriaLocal #BastidoresTOCCA</p></div>
+            <div class="blk"><span class="lbl">Áudio / trilha</span><p>Narração (voz de quem criou a TOCCA) + trilha lo-fi/instrumental suave. Alternativa: fala para a câmera, sem trilha, com legendas.</p></div>
+            <div class="blk"><span class="lbl">Mecânica de engajamento</span><p>Fazer a pergunta final nos comentários e responder todos. Compartilhar nos Stories com sticker de Enquete: “Você conhecia essa história?”.</p></div>
+            <div class="blk"><span class="lbl">Material a reunir</span><p>Entrevista de 5 min com quem fundou o projeto. Roteiro de perguntas: (1) Como surgiu a ideia da TOCCA? (2) Quem estava junto? (3) Qual foi o primeiro evento e o que deu errado? (4) Por que Balneário Camboriú? (5) Qual história do espaço do evento você quer contar? (6) Qual memória te emociona? (7) Que sonho esta edição realiza? · Fotos antigas e atuais.</p></div>
+          </div>
+          
+        </div>
+      </details>
+      <details class="post-card">
+        <summary>
+          <div class="post-date2"><span class="dow">SEX</span><span class="dnum">23</span></div>
+          <div class="post-summary-mid">
+            <span class="pillar-pill">📚 Educação</span>
+            <div class="post-title">8. Stories — Curiosidade cultural rápida (quiz de Hip Hop)</div>
+          </div>
+          <span class="post-badge story">Stories</span>
+          <span class="chevron">▶</span>
+        </summary>
+        <div class="post-detail">
+          <div class="meta-row"><span class="meta-pill">Stories (6 frames)</span><span class="meta-pill">23/10</span></div>
+          <div class="blk"><span class="lbl">Objetivo</span><p>Conteúdo leve de repertório cultural que mantém a retenção diária nos Stories, usando quiz para gerar interação. Pode ser produzido só com arte estática, sem gravação.</p></div>
+          <div class="blk"><span class="lbl">Formato e especificações</span><p>6 frames · 9:16 · fundo preto sólido, texto em roxo e laranja · postar às 15h (bloco de Engajamento ativo).</p></div>
+          <div class="blk"><span class="lbl">Roteiro passo a passo</span><ol class="roteiro"><li><b>Frame 1 · Abertura</b><span>Texto: “VOCÊ SABIA? 🎤” com ícone de microfone. Subtítulo: “Mini-quiz de cultura de rua”.</span></li><li><b>Frame 2 · Fato</b><span>“O Hip Hop completa 53 anos em 2026. A festa que o originou aconteceu no Bronx, Nova York, em 11 de agosto de 1973.”</span></li><li><b>Frame 3 · Quiz</b><span>Sticker de Quiz. Pergunta: “Qual destes NÃO é um dos 4 elementos clássicos do Hip Hop?” Opções: A) Breaking · B) Skate · C) Grafite · D) MC. Resposta certa: B) Skate.</span></li><li><b>Frame 4 · Resposta</b><span>“Os 4 elementos: DJ, MC, breaking e grafite. Muita gente soma um 5º: o conhecimento.”</span></li><li><b>Frame 5 · Verdadeiro ou falso</b><span>Sticker de Quiz com 2 opções. Afirmação: “Alex Vallauri é considerado um dos pioneiros do grafite em São Paulo.” Resposta certa: VERDADEIRO (anos 70/80).</span></li><li><b>Frame 6 · Conexão</b><span>“Essa cultura sobe no palco dia 07/11, na TOCCA dos Artistas.” Sticker de Link para o anúncio + sticker de Lembrete.</span></li></ol></div>
+          <div class="blk"><span class="lbl">Legenda pronta</span><div class="copy-box">Stories não têm legenda. Texto na tela como acima.</div></div>
+          <div class="post-grid2">
+            <div class="blk"><span class="lbl">Hashtags</span><p>Sticker de hashtag #TOCCAdosArtistas.</p></div>
+            <div class="blk"><span class="lbl">Áudio / trilha</span><p>Sem áudio próprio. Opcional: faixa instrumental de rap no sticker de Música.</p></div>
+            <div class="blk"><span class="lbl">Mecânica de engajamento</span><p>O Quiz mostra o % de acerto; repostar o resultado no dia seguinte (“80% acertaram!”). Salvar no Destaque “Cultura”.</p></div>
+            <div class="blk"><span class="lbl">Material a reunir</span><p>Nada de captação. Arte feita no Canva com a paleta da TOCCA.</p></div>
+          </div>
+          <div class="blk"><span class="lbl">Banco de curiosidades para as próximas semanas</span><div class="copy-box alt">• O breaking estreou como esporte olímpico nos Jogos de Paris 2024.
+• A palavra “grafite” vem do italiano graffito (inscrição riscada em parede).
+• DJ Kool Herc nasceu na Jamaica antes de se mudar para o Bronx.
+• A house music nasceu em Chicago no início dos anos 80; o nome vem do clube The Warehouse.
+• O Beco do Batman, na Vila Madalena (SP), é um dos pontos mais conhecidos de arte de rua do Brasil.
+Conferir cada fato numa segunda fonte antes de publicar e adaptar ao estilo dos artistas da lineup.</div></div>
+        </div>
+      </details>
+      <details class="post-card">
+        <summary>
+          <div class="post-date2"><span class="dow">SAB</span><span class="dnum">24</span></div>
+          <div class="post-summary-mid">
+            <span class="pillar-pill">🎭 Spotlight Artistas</span>
+            <div class="post-title">9. Spotlight #3 — Carrossel "5 perguntas rápidas com [Nome]"</div>
+          </div>
+          <span class="post-badge feed">Feed</span>
+          <span class="chevron">▶</span>
+        </summary>
+        <div class="post-detail">
+          <div class="meta-row"><span class="meta-pill">Carrossel</span><span class="meta-pill">24/10</span><a class="refchip" href="#referencias">Ref. 1</a></div>
+          <div class="blk"><span class="lbl">Objetivo</span><p>Fechar a semana com um formato leve de bate-papo, que varia em relação aos Spotlights anteriores e testa o tempo de visualização.</p></div>
+          <div class="blk"><span class="lbl">Formato e especificações</span><p>Carrossel 6 slides · 1080×1350 · publicar às 12h · Collab.</p></div>
+          <div class="blk"><span class="lbl">Roteiro passo a passo</span><ol class="roteiro"><li><b>Slide 1 · Capa</b><span>Retrato do artista. Título: “5 perguntas rápidas com [Nome]”.</span></li><li><b>Slide 2 · Pergunta 1</b><span>“Qual foi sua primeira memória com [arte/música]?” + resposta dele(a) em até 3 linhas.</span></li><li><b>Slide 3 · Pergunta 2</b><span>“O que você vai levar pra TOCCA dos Artistas?”</span></li><li><b>Slide 4 · Pergunta 3</b><span>“Qual artista (de qualquer época) mudou a sua cabeça?”</span></li><li><b>Slide 5 · Pergunta 4</b><span>“Um conselho pra quem quer começar.”</span></li><li><b>Slide 6 · Fecho</b><span>Nome + @ + “07/11 · TOCCA dos Artistas”. Texto: “Segue e já guarda a data.”</span></li></ol></div>
+          <div class="blk"><span class="lbl">Legenda pronta</span><div class="copy-box">Cinco perguntas, zero rodeio. 🎤
+
+[Nome] respondeu rapidinho como começou, o que vem pra TOCCA dos Artistas e deixou um conselho pra quem quer viver de arte.
+
+Desliza e conta qual resposta mais te pegou 👉
+
+🎭 @[perfil]
+📍 [local] · 07/11
+
+Fechou a semana. Amanhã tem mais.</div></div>
+          <div class="post-grid2">
+            <div class="blk"><span class="lbl">Hashtags</span><p>#TOCCA #TOCCAdosArtistas #BalneárioCamboriú #EventosBC #CulturaBC #ArteLocal #Entrevista #ArtistaLocal</p></div>
+            <div class="blk"><span class="lbl">Áudio / trilha</span><p>Carrossel sem áudio. Opcional: música instrumental no carrossel.</p></div>
+            <div class="blk"><span class="lbl">Mecânica de engajamento</span><p>Estimular o swipe até o último slide. Pedir que o artista comente com um “obrigado” e reposte.</p></div>
+            <div class="blk"><span class="lbl">Material a reunir</span><p>Respostas por áudio ou texto do artista às 4 perguntas · 2 fotos.</p></div>
+          </div>
+          
+        </div>
+      </details>
+    </div>
+    <div class="week-group">
+      <div class="week-label"><span>SEMANA 3 · 27-31/10</span><span class="foco">Engajamento e retenção · Conteúdos 10 a 14</span></div>
+      <details class="post-card">
+        <summary>
+          <div class="post-date2"><span class="dow">TER</span><span class="dnum">27</span></div>
+          <div class="post-summary-mid">
+            <span class="pillar-pill">🤝 Comunidade</span>
+            <div class="post-title">10. "Vocês Falaram!" — Compilado de respostas da comunidade</div>
+          </div>
+          <span class="post-badge feed">Feed</span>
+          <span class="chevron">▶</span>
+        </summary>
+        <div class="post-detail">
+          <div class="meta-row"><span class="meta-pill">Carrossel</span><span class="meta-pill">27/10</span><a class="refchip" href="#referencias">Ref. 3</a></div>
+          <div class="blk"><span class="lbl">Objetivo</span><p>Mostrar que a marca escuta. Devolve os resultados das enquetes e perguntas e marca a entrada na reta final.</p></div>
+          <div class="blk"><span class="lbl">Formato e especificações</span><p>Carrossel 5 slides · 1080×1350 · publicar às 19h.</p></div>
+          <div class="blk"><span class="lbl">Roteiro passo a passo</span><ol class="roteiro"><li><b>Slide 1 · Capa</b><span>“Vocês falaram. A gente ouviu. 👂” sobre fundo da paleta.</span></li><li><b>Slide 2 · Enquete</b><span>Print estilizado do resultado da enquete (conteúdo 5): “[Nome] foi o mais votado com [X]%”.</span></li><li><b>Slide 3 · As dúvidas mais comuns</b><span>Lista das 3 perguntas mais frequentes e a resposta curta de cada uma (detalhe no conteúdo 14).</span></li><li><b>Slide 4 · Vozes</b><span>2–3 prints de comentários/DMs elogiando ou sugerindo, com autorização e sem dados pessoais.</span></li><li><b>Slide 5 · O que muda</b><span>“Com base no que vocês disseram, vamos [ação concreta: ex., abrir mais um palco / divulgar a grade de horários]”. CTA: “Segue falando com a gente.”</span></li></ol></div>
+          <div class="blk"><span class="lbl">Legenda pronta</span><div class="copy-box">Vocês falaram, a gente ouviu 👂
+
+Nas últimas semanas, mais de [X] pessoas votaram, comentaram e mandaram mensagem. O artista mais pedido foi [Nome], e muita gente perguntou sobre [tema recorrente].
+
+Essa TOCCA é feita com vocês e segue sendo. Tem sugestão? Comenta aqui embaixo, a gente lê tudo 💜</div></div>
+          <div class="post-grid2">
+            <div class="blk"><span class="lbl">Hashtags</span><p>#TOCCA #TOCCAdosArtistas #BalneárioCamboriú #EventosBC #CulturaBC #ArteLocal #ComunidadeTOCCA</p></div>
+            <div class="blk"><span class="lbl">Áudio / trilha</span><p>Carrossel sem áudio.</p></div>
+            <div class="blk"><span class="lbl">Mecânica de engajamento</span><p>Responder cada comentário. Pedir sugestões para manter a taxa de interação alta.</p></div>
+            <div class="blk"><span class="lbl">Material a reunir</span><p>Resultados das enquetes (conteúdos 2 e 5) · 2–3 comentários/DMs autorizados.</p></div>
+          </div>
+          
+        </div>
+      </details>
+      <details class="post-card">
+        <summary>
+          <div class="post-date2"><span class="dow">QUA</span><span class="dnum">28</span></div>
+          <div class="post-summary-mid">
+            <span class="pillar-pill">✨ Diversão</span>
+            <div class="post-title">11. Carrossel — Como aproveitar o evento de forma saudável</div>
+          </div>
+          <span class="post-badge feed">Feed</span>
+          <span class="chevron">▶</span>
+        </summary>
+        <div class="post-detail">
+          <div class="meta-row"><span class="meta-pill">Carrossel</span><span class="meta-pill">28/10</span><a class="refchip" href="#referencias">Ref. 3</a></div>
+          <div class="blk"><span class="lbl">Objetivo</span><p>Redutor de risco para quem tem receio de ambientes noturnos. Mostra que a TOCCA é organizada e cuida de quem vai. Alto potencial de salvamento e de envio por DM.</p></div>
+          <div class="blk"><span class="lbl">Formato e especificações</span><p>Carrossel 7 slides · 1080×1350 · publicar às 19h.</p></div>
+          <div class="blk"><span class="lbl">Roteiro passo a passo</span><ol class="roteiro"><li><b>Slide 1 · Capa</b><span>“Como curtir a TOCCA do começo ao fim, sem passar aperto 💧”</span></li><li><b>Slide 2 · Coma antes</b><span>“Chegue alimentado(a). Energia pra dançar e ver tudo.” Ícone de prato. Lembrar que haverá comida no evento (ver conteúdo 12).</span></li><li><b>Slide 3 · Hidrate-se</b><span>“Água o tempo todo. Se for beber, alterne com um copo de água a cada bebida.”</span></li><li><b>Slide 4 · Combine o ponto de encontro</b><span>“Combine com o grupo um lugar fixo pra se reencontrar e deixe o celular carregado.”</span></li><li><b>Slide 5 · Roupa e calçado</b><span>“Roupa leve e calçado confortável. Se o evento for ao ar livre, leve protetor solar.” Confirmar o tipo de espaço.</span></li><li><b>Slide 6 · Precisou de ajuda?</b><span>“Fale com a equipe [identificada com camiseta/crachá]. Ponto de acolhimento: [local]”. Incluir só se o protocolo existir.</span></li><li><b>Slide 7 · Respeite seu limite</b><span>“Aproveite no seu ritmo. Salva e manda pro grupo que vai com você.”</span></li></ol></div>
+          <div class="blk"><span class="lbl">Legenda pronta</span><div class="copy-box">Curtir até o fim sem passar mal? Dá sim 💧
+
+Separamos 6 dicas simples pra você aproveitar a TOCCA dos Artistas com energia total, segurança e tranquilidade. A gente cuida da estrutura; você cuida de você.
+
+Desliza pro lado 👉
+
+💾 Salva pra consultar na véspera
+📤 Manda pra quem vai com você
+
+07/11 · [local]</div></div>
+          <div class="post-grid2">
+            <div class="blk"><span class="lbl">Hashtags</span><p>#TOCCA #TOCCAdosArtistas #BalneárioCamboriú #EventosBC #CulturaBC #ArteLocal #BemEstar #CuideDeVocê</p></div>
+            <div class="blk"><span class="lbl">Áudio / trilha</span><p>Carrossel sem áudio.</p></div>
+            <div class="blk"><span class="lbl">Mecânica de engajamento</span><p>Formato utilitário. Pedir salvamento e compartilhamento por DM. Salvar no Destaque “Eventos”.</p></div>
+            <div class="blk"><span class="lbl">Material a reunir</span><p>Confirmar com a produção: existe equipe de acolhimento/segurança? Ponto de água? Tipo de espaço (aberto/coberto)? Itens do slide 6 só entram com a confirmação.</p></div>
+          </div>
+          
+        </div>
+      </details>
+      <details class="post-card">
+        <summary>
+          <div class="post-date2"><span class="dow">QUI</span><span class="dnum">29</span></div>
+          <div class="post-summary-mid">
+            <span class="pillar-pill">✨ Diversão</span>
+            <div class="post-title">12. Reel — Cardápio do evento (valor fixo e quantidade limitada)</div>
+          </div>
+          <span class="post-badge feed">Feed</span>
+          <span class="chevron">▶</span>
+        </summary>
+        <div class="post-detail">
+          <div class="meta-row"><span class="meta-pill">Reel</span><span class="meta-pill">29/10</span><a class="refchip" href="#referencias">Ref. 6</a></div>
+          <div class="blk"><span class="lbl">Objetivo</span><p>Mostrar as comidas que estarão à venda, criar desejo e urgência com preço fixo e quantidade limitada. Responde à dúvida frequente “tem o que comer?”.</p></div>
+          <div class="blk"><span class="lbl">Formato e especificações</span><p>Reel 15–25s · 9:16 · close-ups na luz natural · publicar às 12h (horário de fome).</p></div>
+          <div class="blk"><span class="lbl">Roteiro passo a passo</span><ol class="roteiro"><li><b>0–3s · Gancho</b><span>Close do prato pronto (vapor, queijo esticando, molho caindo). Texto: “Já pensou em comer isso na TOCCA? 🤤”</span></li><li><b>3–8s · Prato 1</b><span>Preparo em 2–3 cortes rápidos. Texto: “[Nome do prato] · R$ [valor]”.</span></li><li><b>8–13s · Prato 2</b><span>Mesmo esquema. Texto: “[Nome do prato] · R$ [valor]”.</span></li><li><b>13–18s · Quem faz</b><span>Rosto de quem prepara: “[Nome], da [barraca/marca], vai estar com a gente.”</span></li><li><b>18–23s · Escassez</b><span>Texto: “Valor único: R$ [valor] · Limite de [quantidade] porções por barraca.” Fundo contrastante.</span></li><li><b>23–25s · CTA</b><span>“Chegue cedo. 07/11 · [local]. Marca quem vai dividir com você.”</span></li></ol></div>
+          <div class="blk"><span class="lbl">Legenda pronta</span><div class="copy-box">Fome de arte e de comida boa 🍽️
+
+Na TOCCA dos Artistas você vai encontrar [lista de pratos/barracas]. E tem um detalhe: o valor é fixo, R$ [valor], e a quantidade é limitada ([X] porções por barraca).
+
+Quem chega cedo prova tudo 😉
+
+Marca aí quem vai dividir um prato com você 👇
+
+📍 [local] · 07/11 · 🕒 a partir das [horário]</div></div>
+          <div class="post-grid2">
+            <div class="blk"><span class="lbl">Hashtags</span><p>#TOCCA #TOCCAdosArtistas #BalneárioCamboriú #EventosBC #CulturaBC #ArteLocal #ComidaDeEvento #Gastronomia #FoodBC</p></div>
+            <div class="blk"><span class="lbl">Áudio / trilha</span><p>Trilha em alta do Reels (preferir ritmo animado) ou som ambiente do preparo (chiado, corte), que funciona muito bem em vídeo de comida.</p></div>
+            <div class="blk"><span class="lbl">Mecânica de engajamento</span><p>A escassez cria urgência. Mostrar nos Stories a contagem de “porções restantes” no dia do evento. Marcar as barracas e pedir que repostem.</p></div>
+            <div class="blk"><span class="lbl">Material a reunir</span><p>Lista de expositores de comida · nome, preço e quantidade por prato · 10 clipes de 2–3s de cada prato (luz natural, vertical, sem zoom digital).</p></div>
+          </div>
+          
+        </div>
+      </details>
+      <details class="post-card">
+        <summary>
+          <div class="post-date2"><span class="dow">SEX</span><span class="dnum">30</span></div>
+          <div class="post-summary-mid">
+            <span class="pillar-pill">🎭 Spotlight Artistas</span>
+            <div class="post-title">13. Post Recap — "Lineup completo confirmado" + grade de horários</div>
+          </div>
+          <span class="post-badge feed">Feed</span>
+          <span class="chevron">▶</span>
+        </summary>
+        <div class="post-detail">
+          <div class="meta-row"><span class="meta-pill">Carrossel</span><span class="meta-pill">30/10</span></div>
+          <div class="blk"><span class="lbl">Objetivo</span><p>Funcionar como o cartaz oficial do evento. Consolida todos os nomes e dá a grade de horários, para quem decide a ida olhando a programação.</p></div>
+          <div class="blk"><span class="lbl">Formato e especificações</span><p>Carrossel 2–3 slides · 1080×1350 · publicar às 12h · fixar no topo.</p></div>
+          <div class="blk"><span class="lbl">Roteiro passo a passo</span><ol class="roteiro"><li><b>Slide 1 · Pôster</b><span>Layout de cartaz: logo no topo, nomes dos artistas em fonte grande (o headliner em destaque), data e local ao pé. Paleta preto/roxo/laranja.</span></li><li><b>Slide 2 · Grade de horários</b><span>Tabela por palco/horário: [hh:mm] [Artista] · [hh:mm] [Artista]… Fonte legível, alto contraste.</span></li><li><b>Slide 3 · Informações</b><span>Endereço, horário de abertura, valor, como chegar, link para tirar dúvidas.</span></li></ol></div>
+          <div class="blk"><span class="lbl">Legenda pronta</span><div class="copy-box">LINEUP COMPLETO 🔥
+
+É oficial: a TOCCA dos Artistas vai ter
+[Artista 1] @[perfil]
+[Artista 2] @[perfil]
+[Artista 3] @[perfil]
+[…]
+
+Grade de horários no segundo slide 👉
+
+📍 [local] · 📅 07/11 · 🕒 [horário]
+
+Marca nos comentários quem vai com você. Faltam 8 dias! 💜</div></div>
+          <div class="post-grid2">
+            <div class="blk"><span class="lbl">Hashtags</span><p>#TOCCA #TOCCAdosArtistas #BalneárioCamboriú #EventosBC #CulturaBC #ArteLocal #Lineup</p></div>
+            <div class="blk"><span class="lbl">Áudio / trilha</span><p>Carrossel sem áudio.</p></div>
+            <div class="blk"><span class="lbl">Mecânica de engajamento</span><p>Fixar junto do conteúdo 1. Pedir que os artistas compartilhem o pôster com suas bases.</p></div>
+            <div class="blk"><span class="lbl">Material a reunir</span><p>Lista final de artistas (nome artístico + @) · ordem e horário das apresentações · fotos em alta · confirmação do headliner.</p></div>
+          </div>
+          
+        </div>
+      </details>
+      <details class="post-card">
+        <summary>
+          <div class="post-date2"><span class="dow">SAB</span><span class="dnum">31</span></div>
+          <div class="post-summary-mid">
+            <span class="pillar-pill">🤝 Comunidade</span>
+            <div class="post-title">14. Carrossel — "Respondendo o que mais perguntaram" (com localização)</div>
+          </div>
+          <span class="post-badge feed">Feed</span>
+          <span class="chevron">▶</span>
+        </summary>
+        <div class="post-detail">
+          <div class="meta-row"><span class="meta-pill">Carrossel</span><span class="meta-pill">31/10</span><a class="refchip" href="#referencias">Ref. 3</a></div>
+          <div class="blk"><span class="lbl">Objetivo</span><p>Responder de forma criativa às perguntas mais frequentes e, no mesmo gesto, divulgar a localização e as informações práticas do evento. Reduz mensagens repetidas na DM.</p></div>
+          <div class="blk"><span class="lbl">Formato e especificações</span><p>Carrossel 7 slides · 1080×1350 · publicar às 12h · salvar no Destaque FAQ.</p></div>
+          <div class="blk"><span class="lbl">Roteiro passo a passo</span><ol class="roteiro"><li><b>Slide 1 · Capa</b><span>“As 6 perguntas que mais chegaram na nossa DM (e as respostas) 👀”. Visual de conversa de WhatsApp.</span></li><li><b>Slide 2 · Onde é?</b><span>Bolha de pergunta: “Onde vai ser?” Resposta: endereço completo, ponto de referência e print do mapa com um pin laranja. Texto: “Como chegar: [carro, ônibus, a pé]”.</span></li><li><b>Slide 3 · Que horas?</b><span>“Abre às [horário] e vai até [horário]. A grade completa tá no post fixado.”</span></li><li><b>Slide 4 · Quanto custa?</b><span>“A entrada é [gratuita / R$ valor]. Ingressos em [link].”</span></li><li><b>Slide 5 · Tem comida e bebida?</b><span>“Tem sim! Veja o cardápio no Reel do dia 29.” Resumo de 2 itens.</span></li><li><b>Slide 6 · É seguro?</b><span>“Equipe [identificada], ponto de acolhimento e [regras do espaço]. Protocolo transparente.”</span></li><li><b>Slide 7 · Fechamento</b><span>“Faltou alguma pergunta? Manda na caixinha dos Stories. Salva este post.”</span></li></ol></div>
+          <div class="blk"><span class="lbl">Legenda pronta</span><div class="copy-box">Vocês perguntaram, a gente respondeu 📲
+
+Reunimos aqui as dúvidas que mais chegaram sobre a TOCCA dos Artistas: onde é, que horas, quanto custa, se tem comida, se é seguro e como chegar.
+
+📍 [endereço]
+📅 07/11 · 🕒 [horário]
+
+💾 Salva este post pra consultar quando precisar
+❓ Ficou com outra dúvida? Manda aqui nos comentários.</div></div>
+          <div class="post-grid2">
+            <div class="blk"><span class="lbl">Hashtags</span><p>#TOCCA #TOCCAdosArtistas #BalneárioCamboriú #EventosBC #CulturaBC #ArteLocal #Dúvidas #Localização</p></div>
+            <div class="blk"><span class="lbl">Áudio / trilha</span><p>Carrossel sem áudio.</p></div>
+            <div class="blk"><span class="lbl">Mecânica de engajamento</span><p>Reaproveitar as perguntas coletadas no conteúdo 2 e nas DMs reais. Responder cada comentário. Repostar o carrossel nos Stories com sticker de Localização.</p></div>
+            <div class="blk"><span class="lbl">Material a reunir</span><p>Planilha de perguntas (conteúdo 2) · endereço, horários, valores, regras de entrada · print do mapa com o pin.</p></div>
+          </div>
+          
+        </div>
+      </details>
+    </div>
+    <div class="week-group">
+      <div class="week-label"><span>SEMANA 4 · 01-06/11</span><span class="foco">Urgência e conversão · Conteúdos 15 a 20</span></div>
+      <details class="post-card">
+        <summary>
+          <div class="post-date2"><span class="dow">DOM</span><span class="dnum">01</span></div>
+          <div class="post-summary-mid">
+            <span class="pillar-pill">🎬 Bastidores</span>
+            <div class="post-title">15. Reel — "Faltam 6 dias" com montagem de tudo que já rolou</div>
+          </div>
+          <span class="post-badge feed">Feed</span>
+          <span class="chevron">▶</span>
+        </summary>
+        <div class="post-detail">
+          <div class="meta-row"><span class="meta-pill">Reel</span><span class="meta-pill">01/11</span></div>
+          <div class="blk"><span class="lbl">Objetivo</span><p>Gerar senso de escassez e antecipação, recapitulando a jornada de preparação a menos de uma semana do evento.</p></div>
+          <div class="blk"><span class="lbl">Formato e especificações</span><p>Reel 20–25s · 9:16 · cortes de menos de 1s · publicar às 11h (domingo, mais tempo livre).</p></div>
+          <div class="blk"><span class="lbl">Roteiro passo a passo</span><ol class="roteiro"><li><b>0–2s · Gancho</b><span>Texto grande: “6 DIAS.” sobre imagem de impacto (palco vazio, público de edição anterior).</span></li><li><b>2–8s · Artistas</b><span>Montagem de 6–8 cortes de 0,8s com os artistas anunciados (reaproveitar clipes dos Spotlights).</span></li><li><b>8–14s · Bastidores</b><span>Cortes da equipe, reuniões, testes de som, visita ao espaço.</span></li><li><b>14–19s · Comunidade</b><span>Cortes de edições anteriores: pessoas rindo, dançando, comida, feira.</span></li><li><b>19–23s · Fecho</b><span>Texto: “07/11. Faltam 6 dias. Bora?” + logo + local.</span></li></ol></div>
+          <div class="blk"><span class="lbl">Legenda pronta</span><div class="copy-box">6 dias. É sério, vem com a gente nessa 🎭🔥
+
+Tudo que a gente viveu até aqui (artistas, bastidores, perguntas, votos) está virando realidade no dia 07/11.
+
+📍 [local] · 🕒 [horário]
+💜 Marca quem não pode ficar de fora.</div></div>
+          <div class="post-grid2">
+            <div class="blk"><span class="lbl">Hashtags</span><p>#TOCCA #TOCCAdosArtistas #BalneárioCamboriú #EventosBC #CulturaBC #ArteLocal #Faltam6Dias #ContagemRegressiva</p></div>
+            <div class="blk"><span class="lbl">Áudio / trilha</span><p>Faixa em alta com batida forte e crescimento (build-up) para sincronizar os cortes. Selecionar no dia da edição.</p></div>
+            <div class="blk"><span class="lbl">Mecânica de engajamento</span><p>Cortes rápidos e texto grande para retenção. Ativar o sticker de contagem regressiva nos Stories do mesmo dia.</p></div>
+            <div class="blk"><span class="lbl">Material a reunir</span><p>Todos os clipes usados nas semanas anteriores, organizados em pasta · fotos/vídeos de edições passadas.</p></div>
+          </div>
+          
+        </div>
+      </details>
+      <details class="post-card">
+        <summary>
+          <div class="post-date2"><span class="dow">SEG</span><span class="dnum">02</span></div>
+          <div class="post-summary-mid">
+            <span class="pillar-pill">✨ Diversão</span>
+            <div class="post-title">16. Stories — "O que levar" (checklist prático)</div>
+          </div>
+          <span class="post-badge story">Stories</span>
+          <span class="chevron">▶</span>
+        </summary>
+        <div class="post-detail">
+          <div class="meta-row"><span class="meta-pill">Stories (5 frames)</span><span class="meta-pill">02/11</span><a class="refchip" href="#referencias">Ref. 3</a></div>
+          <div class="blk"><span class="lbl">Objetivo</span><p>Conteúdo utilitário que reforça a organização da TOCCA e ajuda cada pessoa a se preparar. Gera UGC com o sticker “Adicionar figurinha”.</p></div>
+          <div class="blk"><span class="lbl">Formato e especificações</span><p>5 frames · 9:16 · postar às 18h · salvar no Destaque “Eventos”.</p></div>
+          <div class="blk"><span class="lbl">Roteiro passo a passo</span><ol class="roteiro"><li><b>Frame 1 · Título</b><span>“Vem pra TOCCA? Separa isso aí 👇” em fundo preto com ícones.</span></li><li><b>Frame 2 · Documentos e pagamento</b><span>“Documento com foto · Pix ou cartão: [formas aceitas no evento] · um pouco de dinheiro vivo pra barracas.”</span></li><li><b>Frame 3 · Corpo</b><span>“Garrafinha de água · protetor solar · roupa leve · calçado confortável.”</span></li><li><b>Frame 4 · Celular</b><span>“Bateria carregada · powerbank · combine o ponto de encontro com o grupo.”</span></li><li><b>Frame 5 · UGC</b><span>Sticker de Localização + sticker “Adicionar figurinha”: “Meu look pra TOCCA 👗”. Texto: “Marca @toccanoevento”.</span></li></ol></div>
+          <div class="blk"><span class="lbl">Legenda pronta</span><div class="copy-box">Texto na tela.</div></div>
+          <div class="post-grid2">
+            <div class="blk"><span class="lbl">Hashtags</span><p>Sticker de localização + #TOCCAdosArtistas.</p></div>
+            <div class="blk"><span class="lbl">Áudio / trilha</span><p>Música instrumental de fundo via sticker de Música.</p></div>
+            <div class="blk"><span class="lbl">Mecânica de engajamento</span><p>O “Adicionar figurinha” cria corrente de UGC. Repostar os melhores looks nos Stories do dia seguinte.</p></div>
+            <div class="blk"><span class="lbl">Material a reunir</span><p>Confirmar formas de pagamento no evento e regras de entrada (idade mínima, itens proibidos).</p></div>
+          </div>
+          
+        </div>
+      </details>
+      <details class="post-card">
+        <summary>
+          <div class="post-date2"><span class="dow">TER</span><span class="dnum">03</span></div>
+          <div class="post-summary-mid">
+            <span class="pillar-pill">🤝 Comunidade</span>
+            <div class="post-title">17. Reel — Áudios da comunidade: "tô ansiosa pro dia 07"</div>
+          </div>
+          <span class="post-badge feed">Feed</span>
+          <span class="chevron">▶</span>
+        </summary>
+        <div class="post-detail">
+          <div class="meta-row"><span class="meta-pill">Reel</span><span class="meta-pill">03/11</span><a class="refchip" href="#referencias">Ref. 5</a></div>
+          <div class="blk"><span class="lbl">Objetivo</span><p>Prova social e emoção. Mostra a expectativa real de quem vai (ou de quem já foi em outra edição) usando áudios espontâneos, que humanizam a campanha.</p></div>
+          <div class="blk"><span class="lbl">Formato e especificações</span><p>Reel 20–30s · 9:16 · 3 a 5 áudios de 5–8s · publicar às 19h.</p></div>
+          <div class="blk"><span class="lbl">Roteiro passo a passo</span><ol class="roteiro"><li><b>0–3s · Gancho</b><span>Tela com o visual de mensagem de voz do WhatsApp (ondas de áudio). Texto: “Os áudios que chegaram na nossa DM essa semana 👀”.</span></li><li><b>3–9s · Áudio 1</b><span>Imagem de fundo (foto/Story do autor, se autorizar) + legenda sincronizada com a fala. Ex.: “Gente, eu tô muito ansiosa pro sábado!”</span></li><li><b>9–15s · Áudio 2</b><span>Mesmo esquema. Outra voz, outro motivo (ex.: “é minha primeira vez numa feira de artistas”).</span></li><li><b>15–22s · Áudio 3</b><span>Um áudio de artista ou de quem já foi em edição anterior.</span></li><li><b>22–28s · Fecho</b><span>Texto: “A gente também tá ansioso(a) 🥹 07/11 · TOCCA dos Artistas”. Link na bio.</span></li></ol></div>
+          <div class="blk"><span class="lbl">Legenda pronta</span><div class="copy-box">Quando o áudio chega, a gente fica assim: 🥰
+
+A expectativa pra TOCCA dos Artistas já tá no ar. São [X] dias pra 07/11 e a DM só enche de mensagem de gente contando os dias.
+
+Também tá ansioso(a)? Manda o seu áudio aqui pra gente 👇
+
+📍 [local] · 🕒 [horário]</div></div>
+          <div class="post-grid2">
+            <div class="blk"><span class="lbl">Hashtags</span><p>#TOCCA #TOCCAdosArtistas #BalneárioCamboriú #EventosBC #CulturaBC #ArteLocal #Ansiedade_do_bem #ContagemRegressiva</p></div>
+            <div class="blk"><span class="lbl">Áudio / trilha</span><p>Os próprios áudios dos participantes (com autorização por escrito/DM), em volume claro. Trilha instrumental bem baixa só no começo e no fim.</p></div>
+            <div class="blk"><span class="lbl">Mecânica de engajamento</span><p>Convidar nos Stories: “Manda seu áudio contando o que mais espera”. Cada áudio autorizado vira repost. Marcar quem permitir.</p></div>
+            <div class="blk"><span class="lbl">Material a reunir</span><p>Mensagem pronta para pedir o áudio: “Oi! Pode mandar um áudio de 10 segundos contando o que você mais espera da TOCCA dos Artistas? Posso postar no nosso perfil? 💜”. Coletar de 5 a 8 áudios para escolher os melhores.</p></div>
+          </div>
+          
+        </div>
+      </details>
+      <details class="post-card">
+        <summary>
+          <div class="post-date2"><span class="dow">QUA</span><span class="dnum">04</span></div>
+          <div class="post-summary-mid">
+            <span class="pillar-pill">🎭 Spotlight Artistas</span>
+            <div class="post-title">18. Carrossel — Conheça o som do evento: DJ [Nome] (cultura + anúncio)</div>
+          </div>
+          <span class="post-badge feed">Feed</span>
+          <span class="chevron">▶</span>
+        </summary>
+        <div class="post-detail">
+          <div class="meta-row"><span class="meta-pill">Carrossel</span><span class="meta-pill">04/11</span><a class="refchip" href="#referencias">Ref. 4</a></div>
+          <div class="blk"><span class="lbl">Objetivo</span><p>Apresentar o DJ do evento de forma cultural e informativa, unindo a história do gênero ao anúncio da data, do horário do set e do local.</p></div>
+          <div class="blk"><span class="lbl">Formato e especificações</span><p>Carrossel 7 slides · 1080×1350 · publicar às 12h · Collab com o DJ.</p></div>
+          <div class="blk"><span class="lbl">Roteiro passo a passo</span><ol class="roteiro"><li><b>Slide 1 · Capa</b><span>Retrato do DJ + título: “Quem comanda o som da TOCCA: DJ [Nome]”.</span></li><li><b>Slide 2 · O gênero</b><span>História curta do estilo que ele toca. Exemplo (House): nasceu em Chicago, início dos anos 80; o nome vem do clube The Warehouse; chegou ao Brasil nos anos 90. Adaptar ao gênero do DJ.</span></li><li><b>Slide 3 · A cena local</b><span>“A cena eletrônica faz parte da identidade de Balneário Camboriú há muitos anos.” Ligar o gênero com a cidade (clubs, festas, coletivos, DJs locais).</span></li><li><b>Slide 4 · Quem é o DJ</b><span>3 fatos sobre a trajetória: início, onde já tocou, projeto ou selo próprio.</span></li><li><b>Slide 5 · O que esperar do set</b><span>Descrição do set em 2 linhas (estilo, clima) e 3 faixas que ele tocará, como prévia.</span></li><li><b>Slide 6 · Informações</b><span>“Set às [horário] · TOCCA dos Artistas · 07/11 · [local] · [valor]”.</span></li><li><b>Slide 7 · CTA</b><span>“Marca quem dança contigo e segue @[perfil do DJ]. Playlist no link da bio.”</span></li></ol></div>
+          <div class="blk"><span class="lbl">Legenda pronta</span><div class="copy-box">[Gênero] também é cultura. E cultura é pra todo mundo 🎧
+
+Dia 07/11, a TOCCA dos Artistas vai ter o set de [DJ Nome], que traz [estilo] pro [palco/espaço].
+
+O [gênero] nasceu em [local/ano] e hoje faz parte da identidade de Balneário Camboriú. Desliza pra conhecer essa história e o que esperar do set 👉
+
+🎧 @[perfil do DJ]
+📍 [local] · 07/11 · 🕒 set às [horário]
+
+Marca aí quem vai dançar com você 💜</div></div>
+          <div class="post-grid2">
+            <div class="blk"><span class="lbl">Hashtags</span><p>#TOCCA #TOCCAdosArtistas #BalneárioCamboriú #EventosBC #CulturaBC #ArteLocal #DJ #MúsicaEletrônica #CenaLocal</p></div>
+            <div class="blk"><span class="lbl">Áudio / trilha</span><p>Carrossel sem áudio. No Story de divulgação, usar um trecho de 15s de um set ou faixa do DJ (com autorização).</p></div>
+            <div class="blk"><span class="lbl">Mecânica de engajamento</span><p>Pedir ao DJ 10 músicas e criar uma playlist “TOCCA dos Artistas” no Spotify. Divulgar o link nos Stories. Nos Stories do mesmo dia, ativar o sticker de contagem (“Faltam 3 dias”).</p></div>
+            <div class="blk"><span class="lbl">Material a reunir</span><p>Mini-bio do DJ (5 linhas) · fotos · horário do set · 10 músicas para a playlist · autorização para usar trecho de áudio.</p></div>
+          </div>
+          
+        </div>
+      </details>
+      <details class="post-card">
+        <summary>
+          <div class="post-date2"><span class="dow">QUI</span><span class="dnum">05</span></div>
+          <div class="post-summary-mid">
+            <span class="pillar-pill">🎭 Spotlight Artistas</span>
+            <div class="post-title">19. Reel — Prévia/ensaio de um dos artistas confirmados</div>
+          </div>
+          <span class="post-badge feed">Feed</span>
+          <span class="chevron">▶</span>
+        </summary>
+        <div class="post-detail">
+          <div class="meta-row"><span class="meta-pill">Reel</span><span class="meta-pill">05/11</span><a class="refchip" href="#referencias">Ref. 1</a></div>
+          <div class="blk"><span class="lbl">Objetivo</span><p>Dar uma amostra real da performance a 48h do evento, elevando a expectativa de presença.</p></div>
+          <div class="blk"><span class="lbl">Formato e especificações</span><p>Reel 15–20s · 9:16 · Collab com o artista · publicar às 19h.</p></div>
+          <div class="blk"><span class="lbl">Roteiro passo a passo</span><ol class="roteiro"><li><b>0–2s · Gancho</b><span>Texto: “Isso é só uma prévia.”</span></li><li><b>2–15s · Clipe</b><span>Trecho do ensaio ou de uma apresentação recente, filmado na vertical. Legenda com o nome da música/obra.</span></li><li><b>15–19s · Fecho</b><span>“O show completo é dia 07/11. @[artista] · TOCCA dos Artistas.”</span></li></ol></div>
+          <div class="blk"><span class="lbl">Legenda pronta</span><div class="copy-box">Isso é só uma prévia 🔥
+
+@[artista] mostra um pouquinho do que vem por aí. O show completo acontece dia 07/11, ao vivo, na TOCCA dos Artistas.
+
+📍 [local] · 🕒 [horário da apresentação]
+
+Marca quem não pode perder.</div></div>
+          <div class="post-grid2">
+            <div class="blk"><span class="lbl">Hashtags</span><p>#TOCCA #TOCCAdosArtistas #BalneárioCamboriú #EventosBC #CulturaBC #ArteLocal #Prévia</p></div>
+            <div class="blk"><span class="lbl">Áudio / trilha</span><p>O próprio áudio do ensaio (com autorização do artista).</p></div>
+            <div class="blk"><span class="lbl">Mecânica de engajamento</span><p>Publicar em Collab e marcar na posição de destaque. Pedir que o artista reposte.</p></div>
+            <div class="blk"><span class="lbl">Material a reunir</span><p>Clipe vertical 9:16 de 15 a 20s, áudio limpo, sem zoom digital · autorização por escrito para usar o áudio.</p></div>
+          </div>
+          
+        </div>
+      </details>
+      <details class="post-card">
+        <summary>
+          <div class="post-date2"><span class="dow">SEX</span><span class="dnum">06</span></div>
+          <div class="post-summary-mid">
+            <span class="pillar-pill">🎬 Bastidores</span>
+            <div class="post-title">20. Stories — Montagem do evento (véspera)</div>
+          </div>
+          <span class="post-badge story">Stories</span>
+          <span class="chevron">▶</span>
+        </summary>
+        <div class="post-detail">
+          <div class="meta-row"><span class="meta-pill">Stories (6 frames)</span><span class="meta-pill">06/11</span></div>
+          <div class="blk"><span class="lbl">Objetivo</span><p>Documentar a preparação física no local e comprovar que o evento é real e organizado.</p></div>
+          <div class="blk"><span class="lbl">Formato e especificações</span><p>6 frames · 9:16 · gravar ao longo do dia e postar das 14h às 22h.</p></div>
+          <div class="blk"><span class="lbl">Roteiro passo a passo</span><ol class="roteiro"><li><b>Frame 1 · Chegada</b><span>Vídeo de 5s de caminhão ou equipamentos chegando. Texto: “começou a montagem 👷”.</span></li><li><b>Frame 2 · Palco</b><span>Timelapse de 5–8s do palco sendo montado.</span></li><li><b>Frame 3 · Som</b><span>Teste de som (áudio real). Texto: “som testado 🔊”.</span></li><li><b>Frame 4 · Equipe</b><span>Foto ou vídeo curto da equipe com camiseta. Texto: “a turma toda em campo”.</span></li><li><b>Frame 5 · Amanhã</b><span>“amanhã é o dia 🎭” + sticker de Contagem Regressiva para 07/11.</span></li><li><b>Frame 6 · Info final</b><span>Cartão com local, horário e como chegar + sticker de Link.</span></li></ol></div>
+          <div class="blk"><span class="lbl">Legenda pronta</span><div class="copy-box">Texto na tela.</div></div>
+          <div class="post-grid2">
+            <div class="blk"><span class="lbl">Hashtags</span><p>Sticker de localização + #TOCCAdosArtistas.</p></div>
+            <div class="blk"><span class="lbl">Áudio / trilha</span><p>Som ambiente (montagem, teste de som) sem música por cima.</p></div>
+            <div class="blk"><span class="lbl">Mecânica de engajamento</span><p>Mostrar bastidores reais gera confiança e decisão final de ida. Repostar menções de quem comentar.</p></div>
+            <div class="blk"><span class="lbl">Material a reunir</span><p>Alguém da equipe dedicado a filmar durante a montagem.</p></div>
+          </div>
+          
+        </div>
+      </details>
+    </div>
+    <div class="week-group">
+      <div class="week-label"><span>DIA DO EVENTO · 07/11</span><span class="foco">Cobertura ao vivo · Conteúdos 21 a 23</span></div>
+      <details class="post-card">
+        <summary>
+          <div class="post-date2"><span class="dow">SAB</span><span class="dnum">07</span></div>
+          <div class="post-summary-mid">
+            <span class="pillar-pill">🎬 Bastidores</span>
+            <div class="post-title">21. Stories ao vivo — Abertura do evento</div>
+          </div>
+          <span class="post-badge story">Stories</span>
+          <span class="chevron">▶</span>
+        </summary>
+        <div class="post-detail">
+          <div class="meta-row"><span class="meta-pill">Stories ao vivo (8–12 frames)</span><span class="meta-pill">07/11</span></div>
+          <div class="blk"><span class="lbl">Objetivo</span><p>Iniciar a cobertura em tempo real, gerar FOMO em quem não foi e comprovar que a promessa da marca está sendo entregue.</p></div>
+          <div class="blk"><span class="lbl">Formato e especificações</span><p>8–12 frames · 9:16 · a cada 20–30 min · designar 1 pessoa só para Stories.</p></div>
+          <div class="blk"><span class="lbl">Roteiro passo a passo</span><ol class="roteiro"><li><b>2h antes · Preparativos</b><span>Equipe ajustando os últimos detalhes. Texto: “últimos ajustes… 🔧”.</span></li><li><b>1h antes · Chegada dos artistas</b><span>Primeira chegada de artistas (marcar). Texto: “quem chegou? 👀”.</span></li><li><b>Abertura · Portões</b><span>Vídeo de 5s dos portões abrindo. Texto: “TÁ ROLANDO 🎭” com sticker de Localização.</span></li><li><b>+20 min · Recepção</b><span>Fila organizada, equipe recebendo, pulseiras/credenciais.</span></li><li><b>+40 min · Ambiente</b><span>Tomadas gerais: palco, feira, comida, decoração.</span></li><li><b>+60 min · 1ª apresentação</b><span>10–15s do primeiro artista, marcando o perfil.</span></li><li><b>+90 min · Público</b><span>Pessoas chegando, conversando e sorrindo.</span></li><li><b>Fecho · Convite</b><span>“Ainda dá tempo! Estamos em [local] até [horário]”. Sticker de Link/Localização.</span></li></ol></div>
+          <div class="blk"><span class="lbl">Legenda pronta</span><div class="copy-box">Texto na tela.</div></div>
+          <div class="post-grid2">
+            <div class="blk"><span class="lbl">Hashtags</span><p>Localização + #TOCCAdosArtistas.</p></div>
+            <div class="blk"><span class="lbl">Áudio / trilha</span><p>Som ambiente real. Música apenas nas transições.</p></div>
+            <div class="blk"><span class="lbl">Mecânica de engajamento</span><p>Os Stories ao vivo trazem quem estava indeciso. Salvar o melhor no Destaque “Eventos”.</p></div>
+            <div class="blk"><span class="lbl">Material a reunir</span><p>Pessoa dedicada às redes · celular carregado + powerbank · pasta compartilhada para enviar as mídias.</p></div>
+          </div>
+          
+        </div>
+      </details>
+      <details class="post-card">
+        <summary>
+          <div class="post-date2"><span class="dow">SAB</span><span class="dnum">07</span></div>
+          <div class="post-summary-mid">
+            <span class="pillar-pill">🎭 Spotlight Artistas</span>
+            <div class="post-title">22. Stories ao vivo — Apresentações dos artistas</div>
+          </div>
+          <span class="post-badge story">Stories</span>
+          <span class="chevron">▶</span>
+        </summary>
+        <div class="post-detail">
+          <div class="meta-row"><span class="meta-pill">Stories ao vivo (3 por artista)</span><span class="meta-pill">07/11</span><a class="refchip" href="#referencias">Ref. 1</a></div>
+          <div class="blk"><span class="lbl">Objetivo</span><p>Documentar cada artista no palco e incentivar o repost imediato em seus perfis.</p></div>
+          <div class="blk"><span class="lbl">Formato e especificações</span><p>3 frames por artista · 9:16 · gravar vídeo na vertical de 10–15s.</p></div>
+          <div class="blk"><span class="lbl">Roteiro passo a passo</span><ol class="roteiro"><li><b>Frame 1 · Anúncio</b><span>Card “AGORA NO PALCO: [Nome]” com sticker de Menção (@perfil).</span></li><li><b>Frame 2 · Show</b><span>Vídeo vertical de 10–15s no ápice da apresentação, sem zoom digital.</span></li><li><b>Frame 3 · Pós</b><span>Foto do artista com a equipe ou com o público. Texto: “obrigado, [Nome]!”</span></li></ol></div>
+          <div class="blk"><span class="lbl">Legenda pronta</span><div class="copy-box">Texto na tela.</div></div>
+          <div class="post-grid2">
+            <div class="blk"><span class="lbl">Hashtags</span><p>Localização + #TOCCAdosArtistas.</p></div>
+            <div class="blk"><span class="lbl">Áudio / trilha</span><p>Áudio direto do show. Se o áudio estiver saturado, aplicar música do sticker em volume baixo.</p></div>
+            <div class="blk"><span class="lbl">Mecânica de engajamento</span><p>Marcar sempre o artista para que ele reposte. Salvar os vídeos brutos numa pasta para o Reel recap (conteúdo 27).</p></div>
+            <div class="blk"><span class="lbl">Material a reunir</span><p>Alguém dedicado a filmar os shows · lista de ordem de apresentação · autorizações de imagem dos artistas.</p></div>
+          </div>
+          
+        </div>
+      </details>
+      <details class="post-card">
+        <summary>
+          <div class="post-date2"><span class="dow">SAB</span><span class="dnum">07</span></div>
+          <div class="post-summary-mid">
+            <span class="pillar-pill">🤝 Comunidade</span>
+            <div class="post-title">23. Stories — A comunidade no evento (público e atmosfera)</div>
+          </div>
+          <span class="post-badge story">Stories</span>
+          <span class="chevron">▶</span>
+        </summary>
+        <div class="post-detail">
+          <div class="meta-row"><span class="meta-pill">Stories ao vivo (espontâneo)</span><span class="meta-pill">07/11</span><a class="refchip" href="#referencias">Ref. 5</a></div>
+          <div class="blk"><span class="lbl">Objetivo</span><p>Capturar a atmosfera segura, diversa e acolhedora e formar acervo para os conteúdos pós-evento.</p></div>
+          <div class="blk"><span class="lbl">Formato e especificações</span><p>8–10 frames · 9:16 · gravar sem roteiro engessado.</p></div>
+          <div class="blk"><span class="lbl">Roteiro passo a passo</span><ol class="roteiro"><li><b>Lista de cenas</b><span>1) pessoas chegando e sorrindo; 2) grupos dançando; 3) quem visita a feira e conversa com artistas; 4) comida/bebida sendo servida; 5) equipe de acolhimento presente; 6) banheiro e espaço limpos; 7) a primeira vez de alguém no evento (perguntar rapidamente); 8) enquete: “Nota de 0 a 10 pra TOCCA até agora?” com slider; 9) momento fofo (abraço, selfie em grupo).</span></li><li><b>Depoimento de 10s</b><span>Perguntar: “O que você mais tá curtindo?” Gravar 10s na vertical. Pedir autorização falada: “Posso postar?”</span></li><li><b>Cuidados</b><span>Não filmar pessoas visivelmente alcoolizadas nem menores sem autorização do responsável. Respeitar quem não quer aparecer.</span></li></ol></div>
+          <div class="blk"><span class="lbl">Legenda pronta</span><div class="copy-box">Texto na tela.</div></div>
+          <div class="post-grid2">
+            <div class="blk"><span class="lbl">Hashtags</span><p>Localização + #TOCCAdosArtistas.</p></div>
+            <div class="blk"><span class="lbl">Áudio / trilha</span><p>Som ambiente real.</p></div>
+            <div class="blk"><span class="lbl">Mecânica de engajamento</span><p>Marcar perfis de quem autorizar. Reunir tudo numa pasta para os conteúdos 24, 27 e 28.</p></div>
+            <div class="blk"><span class="lbl">Material a reunir</span><p>Alguém dedicado à comunidade · autorizações verbais gravadas.</p></div>
+          </div>
+          
+        </div>
+      </details>
+    </div>
+    <div class="week-group">
+      <div class="week-label"><span>PÓS-EVENTO · 08-19/11</span><span class="foco">Retenção e prova social · Conteúdos 24 a 30</span></div>
+      <details class="post-card">
+        <summary>
+          <div class="post-date2"><span class="dow">DOM</span><span class="dnum">08</span></div>
+          <div class="post-summary-mid">
+            <span class="pillar-pill">🤝 Comunidade</span>
+            <div class="post-title">24. Post de Agradecimento — "Obrigado por fazerem parte"</div>
+          </div>
+          <span class="post-badge feed">Feed</span>
+          <span class="chevron">▶</span>
+        </summary>
+        <div class="post-detail">
+          <div class="meta-row"><span class="meta-pill">Carrossel</span><span class="meta-pill">08/11</span></div>
+          <div class="blk"><span class="lbl">Objetivo</span><p>Primeiro post pós-evento, publicado no calor do momento para fixar a memória afetiva e marcar quem esteve lá.</p></div>
+          <div class="blk"><span class="lbl">Formato e especificações</span><p>Carrossel 4 slides · 1080×1350 · publicar às 10h (manhã seguinte).</p></div>
+          <div class="blk"><span class="lbl">Roteiro passo a passo</span><ol class="roteiro"><li><b>Slide 1 · Foto de impacto</b><span>Melhor registro do evento (visão do público ou ápice de um show). Texto discreto: “Obrigado.”</span></li><li><b>Slide 2 · Números rápidos</b><span>[X] pessoas · [X] artistas · [X] horas de música · [X] expositores (se já houver).</span></li><li><b>Slide 3 · Colagem</b><span>4 fotos pequenas de momentos distintos (arte, comida, dança, público).</span></li><li><b>Slide 4 · Fecho</b><span>“Até a próxima TOCCA 🎭”. Logo.</span></li></ol></div>
+          <div class="blk"><span class="lbl">Legenda pronta</span><div class="copy-box">Obrigado por fazer parte da TOCCA dos Artistas 💜
+
+Cada artista, cada pessoa que apareceu, cada sorriso e cada conversa foi exatamente o que a gente queria construir: um espaço seguro, cheio de arte e de gente de verdade.
+
+Se você esteve com a gente, marca aqui nos comentários quem dividiu esse dia com você 👇
+
+Até a próxima. 🎭</div></div>
+          <div class="post-grid2">
+            <div class="blk"><span class="lbl">Hashtags</span><p>#TOCCA #TOCCAdosArtistas #BalneárioCamboriú #EventosBC #CulturaBC #ArteLocal #Gratidão #ObrigadoBC</p></div>
+            <div class="blk"><span class="lbl">Áudio / trilha</span><p>Carrossel sem áudio.</p></div>
+            <div class="blk"><span class="lbl">Mecânica de engajamento</span><p>CTA para marcar quem foi junto, que gera novo ciclo de comentários. Responder cada comentário.</p></div>
+            <div class="blk"><span class="lbl">Material a reunir</span><p>Selecionar a melhor foto na noite do evento · números preliminares com a produção.</p></div>
+          </div>
+          
+        </div>
+      </details>
+      <details class="post-card">
+        <summary>
+          <div class="post-date2"><span class="dow">SEG</span><span class="dnum">09</span></div>
+          <div class="post-summary-mid">
+            <span class="pillar-pill">🤝 Comunidade</span>
+            <div class="post-title">25. Stories — Pedido de fotos, vídeos e depoimentos de quem foi</div>
+          </div>
+          <span class="post-badge story">Stories</span>
+          <span class="chevron">▶</span>
+        </summary>
+        <div class="post-detail">
+          <div class="meta-row"><span class="meta-pill">Stories (4 frames)</span><span class="meta-pill">09/11</span><a class="refchip" href="#referencias">Ref. 5</a></div>
+          <div class="blk"><span class="lbl">Objetivo</span><p>Coletar UGC e depoimentos espontâneos que alimentam os conteúdos 28 e 29.</p></div>
+          <div class="blk"><span class="lbl">Formato e especificações</span><p>4 frames · 9:16 · postar às 11h; repostar ao longo do dia.</p></div>
+          <div class="blk"><span class="lbl">Roteiro passo a passo</span><ol class="roteiro"><li><b>Frame 1 · Convite</b><span>“Foi na TOCCA? Manda sua foto/vídeo ou conta como foi pra você 👇”.</span></li><li><b>Frame 2 · Caixinha</b><span>Sticker de Perguntas: “Conta como foi pra você”.</span></li><li><b>Frame 3 · UGC</b><span>Sticker “Adicionar figurinha”: “Meu momento na TOCCA 📸”.</span></li><li><b>Frame 4 · Instruções</b><span>“Marca @toccanoevento e usa #TOCCAdosArtistas pra gente repostar.”</span></li></ol></div>
+          <div class="blk"><span class="lbl">Legenda pronta</span><div class="copy-box">Texto na tela. Resposta padrão por DM: “Que bom que você foi! Posso postar sua foto/depoimento no nosso perfil, com seu @? 💜”</div></div>
+          <div class="post-grid2">
+            <div class="blk"><span class="lbl">Hashtags</span><p>#TOCCAdosArtistas</p></div>
+            <div class="blk"><span class="lbl">Áudio / trilha</span><p>Música de fundo suave.</p></div>
+            <div class="blk"><span class="lbl">Mecânica de engajamento</span><p>Repostar as melhores contribuições. Guardar prints dos depoimentos (com autorização) para o conteúdo 28.</p></div>
+            <div class="blk"><span class="lbl">Material a reunir</span><p>Planilha com: autor · tipo (foto/vídeo/texto) · autorização (sim/não).</p></div>
+          </div>
+          
+        </div>
+      </details>
+      <details class="post-card">
+        <summary>
+          <div class="post-date2"><span class="dow">TER</span><span class="dnum">10</span></div>
+          <div class="post-summary-mid">
+            <span class="pillar-pill">🎭 Spotlight Artistas</span>
+            <div class="post-title">26. Agradecimento aos artistas — um slide por atração</div>
+          </div>
+          <span class="post-badge feed">Feed</span>
+          <span class="chevron">▶</span>
+        </summary>
+        <div class="post-detail">
+          <div class="meta-row"><span class="meta-pill">Carrossel</span><span class="meta-pill">10/11</span><a class="refchip" href="#referencias">Ref. 1</a></div>
+          <div class="blk"><span class="lbl">Objetivo</span><p>Reconhecer cada artista publicamente, fortalecer vínculos e garantir retorno em edições futuras.</p></div>
+          <div class="blk"><span class="lbl">Formato e especificações</span><p>Carrossel de 1 slide por artista + capa e fecho (máx. 10 slides) · Collab com o artista de capa · publicar às 12h.</p></div>
+          <div class="blk"><span class="lbl">Roteiro passo a passo</span><ol class="roteiro"><li><b>Slide 1 · Capa</b><span>“Obrigado, artistas 🎭” sobre foto coletiva ou de palco.</span></li><li><b>Slides 2 a N · Individuais</b><span>Um slide por atração: foto da apresentação ao vivo + nome + @. Frase curta: ex., “[Nome], você transformou [momento] em lembrança.”</span></li><li><b>Último slide · Fecho</b><span>“Vocês elevaram o nível. Até a próxima.” Logo.</span></li></ol></div>
+          <div class="blk"><span class="lbl">Legenda pronta</span><div class="copy-box">Obrigado a cada artista que fez a TOCCA dos Artistas acontecer 🎭
+
+[Nome 1] @[perfil], [Nome 2] @[perfil], [Nome 3] @[perfil]…
+
+Vocês trouxeram arte, verdade e coragem pro palco. A TOCCA só existe porque vocês existem. 💜
+
+Se você viu alguma dessas apresentações, deixa um comentário pra eles saberem o quanto tocou.</div></div>
+          <div class="post-grid2">
+            <div class="blk"><span class="lbl">Hashtags</span><p>#TOCCA #TOCCAdosArtistas #BalneárioCamboriú #EventosBC #CulturaBC #ArteLocal #Gratidão #ArtistasBC</p></div>
+            <div class="blk"><span class="lbl">Áudio / trilha</span><p>Carrossel sem áudio.</p></div>
+            <div class="blk"><span class="lbl">Mecânica de engajamento</span><p>Marcar todos os artistas e pedir que reponham as lâminas. Perguntar discretamente por DM quem tem interesse em voltar na próxima edição.</p></div>
+            <div class="blk"><span class="lbl">Material a reunir</span><p>Pelo menos 1 foto de boa qualidade por artista, da apresentação ao vivo.</p></div>
+          </div>
+          
+        </div>
+      </details>
+      <details class="post-card">
+        <summary>
+          <div class="post-date2"><span class="dow">QUI</span><span class="dnum">12</span></div>
+          <div class="post-summary-mid">
+            <span class="pillar-pill">✨ Diversão</span>
+            <div class="post-title">27. Reel recap — Melhores momentos do evento</div>
+          </div>
+          <span class="post-badge feed">Feed</span>
+          <span class="chevron">▶</span>
+        </summary>
+        <div class="post-detail">
+          <div class="meta-row"><span class="meta-pill">Reel</span><span class="meta-pill">12/11</span></div>
+          <div class="blk"><span class="lbl">Objetivo</span><p>Peça de síntese e de alcance, com alto potencial de compartilhamento. Funciona como vitrine para novos seguidores e para a próxima edição.</p></div>
+          <div class="blk"><span class="lbl">Formato e especificações</span><p>Reel 30–45s · 9:16 · publicar às 19h · Collab com 2–3 artistas.</p></div>
+          <div class="blk"><span class="lbl">Roteiro passo a passo</span><ol class="roteiro"><li><b>0–3s · Gancho</b><span>Melhor imagem do dia + texto: “Foi assim a TOCCA dos Artistas.”</span></li><li><b>3–12s · Chegada</b><span>Pessoas entrando, fila, sorrisos, decoração, palco.</span></li><li><b>12–25s · Shows</b><span>Cortes rápidos de 2–3 artistas no auge (marcar @).</span></li><li><b>25–35s · Comunidade</b><span>Dança, feira, comida, conversas, abraços.</span></li><li><b>35–45s · Fecho</b><span>Logo + texto: “Obrigado. A próxima já tá sendo pensada.” + data/dica da próxima edição, se existir.</span></li></ol></div>
+          <div class="blk"><span class="lbl">Legenda pronta</span><div class="copy-box">Foi assim a TOCCA dos Artistas 🎭🔥
+
+Arte, música, comida boa e muita gente bonita num mesmo lugar. Obrigado a quem fez parte: artistas, equipe, expositores e, principalmente, você que foi.
+
+A próxima já tá sendo pensada. Fica de olho e liga as notificações 💜
+
+Marca quem esteve com você 👇</div></div>
+          <div class="post-grid2">
+            <div class="blk"><span class="lbl">Hashtags</span><p>#TOCCA #TOCCAdosArtistas #BalneárioCamboriú #EventosBC #CulturaBC #ArteLocal #Recap #MelhoresMomentos</p></div>
+            <div class="blk"><span class="lbl">Áudio / trilha</span><p>Faixa de um dos artistas/DJ do evento (com autorização) ou trilha em alta no momento.</p></div>
+            <div class="blk"><span class="lbl">Mecânica de engajamento</span><p>Priorizar cenas de emoção e energia. Pedir que os artistas marcados compartilhem.</p></div>
+            <div class="blk"><span class="lbl">Material a reunir</span><p>Todos os brutos de 21, 22 e 23 numa pasta · autorização para uso de áudio dos artistas.</p></div>
+          </div>
+          
+        </div>
+      </details>
+      <details class="post-card">
+        <summary>
+          <div class="post-date2"><span class="dow">SAB</span><span class="dnum">14</span></div>
+          <div class="post-summary-mid">
+            <span class="pillar-pill">🤝 Comunidade</span>
+            <div class="post-title">28. "Quem Foi, Amou!" — Compilado de depoimentos do público</div>
+          </div>
+          <span class="post-badge feed">Feed</span>
+          <span class="chevron">▶</span>
+        </summary>
+        <div class="post-detail">
+          <div class="meta-row"><span class="meta-pill">Carrossel</span><span class="meta-pill">14/11</span><a class="refchip" href="#referencias">Ref. 5</a></div>
+          <div class="blk"><span class="lbl">Objetivo</span><p>Transformar as respostas do público em prova social permanente para as próximas edições.</p></div>
+          <div class="blk"><span class="lbl">Formato e especificações</span><p>Carrossel 6 slides · 1080×1350 · publicar às 19h · fixar e salvar no Destaque “Eventos”.</p></div>
+          <div class="blk"><span class="lbl">Roteiro passo a passo</span><ol class="roteiro"><li><b>Slide 1 · Capa</b><span>“Quem foi, amou 💜” + colagem de fotos.</span></li><li><b>Slides 2 a 5 · Depoimentos</b><span>Um depoimento por slide: foto (autorizada) ou print estilizado, frase de destaque e @ de quem falou.</span></li><li><b>Slide 6 · Fecho</b><span>“Sua história também pode estar aqui. Te vejo na próxima TOCCA.”</span></li></ol></div>
+          <div class="blk"><span class="lbl">Legenda pronta</span><div class="copy-box">Quem foi, amou 💜
+
+Separamos alguns relatos de quem viveu a TOCCA dos Artistas com a gente. Cada um deles é um motivo pra gente continuar.
+
+Se você também foi, conta pra gente nos comentários o que mais te marcou 👇</div></div>
+          <div class="post-grid2">
+            <div class="blk"><span class="lbl">Hashtags</span><p>#TOCCA #TOCCAdosArtistas #BalneárioCamboriú #EventosBC #CulturaBC #ArteLocal #QuemFoiAmou</p></div>
+            <div class="blk"><span class="lbl">Áudio / trilha</span><p>Carrossel sem áudio.</p></div>
+            <div class="blk"><span class="lbl">Mecânica de engajamento</span><p>Fixar no perfil. Responder cada comentário com agradecimento personalizado.</p></div>
+            <div class="blk"><span class="lbl">Material a reunir</span><p>Depoimentos coletados no conteúdo 25, com autorização para publicar.</p></div>
+          </div>
+          
+        </div>
+      </details>
+      <details class="post-card">
+        <summary>
+          <div class="post-date2"><span class="dow">TER</span><span class="dnum">17</span></div>
+          <div class="post-summary-mid">
+            <span class="pillar-pill">🎬 Bastidores</span>
+            <div class="post-title">29. Post de Aprendizados — Balanço transparente do evento</div>
+          </div>
+          <span class="post-badge feed">Feed</span>
+          <span class="chevron">▶</span>
+        </summary>
+        <div class="post-detail">
+          <div class="meta-row"><span class="meta-pill">Carrossel</span><span class="meta-pill">17/11</span><a class="refchip" href="#referencias">Ref. 7</a></div>
+          <div class="blk"><span class="lbl">Objetivo</span><p>Mostrar os números e os aprendizados do evento com transparência. Demonstra maturidade e prepara o público para a próxima edição.</p></div>
+          <div class="blk"><span class="lbl">Formato e especificações</span><p>Carrossel 5 slides · 1080×1350 · publicar às 12h.</p></div>
+          <div class="blk"><span class="lbl">Roteiro passo a passo</span><ol class="roteiro"><li><b>Slide 1 · Capa</b><span>“Um resumo sincero de como foi a TOCCA dos Artistas 📊”.</span></li><li><b>Slide 2 · Números</b><span>[X] pessoas · [X] artistas no palco · [X] horas de música · [X] expositores · [X] novos seguidores.</span></li><li><b>Slide 3 · O que funcionou</b><span>3 itens (ex.: horários, grade de artistas, acolhimento).</span></li><li><b>Slide 4 · O que vamos melhorar</b><span>3 pontos honestos (ex.: fila na entrada, sinalização, tempo entre shows).</span></li><li><b>Slide 5 · Próximos passos</b><span>“Estamos abrindo curadoria pra próxima edição. Veja o guia no próximo post.”</span></li></ol></div>
+          <div class="blk"><span class="lbl">Legenda pronta</span><div class="copy-box">Um resumo sincero de como foi a TOCCA dos Artistas 📊
+
+[X] pessoas, [X] artistas no palco e muito aprendizado pra deixar a próxima edição ainda melhor.
+
+O que funcionou, o que vamos melhorar e o que vem por aí: tudo no carrossel 👉
+
+Tem alguma sugestão? Comenta aqui, a gente lê.</div></div>
+          <div class="post-grid2">
+            <div class="blk"><span class="lbl">Hashtags</span><p>#TOCCA #TOCCAdosArtistas #BalneárioCamboriú #EventosBC #CulturaBC #ArteLocal #Balanço #Aprendizados</p></div>
+            <div class="blk"><span class="lbl">Áudio / trilha</span><p>Carrossel sem áudio.</p></div>
+            <div class="blk"><span class="lbl">Mecânica de engajamento</span><p>Transparência gera credibilidade. Responder sugestões e anotar para a próxima edição.</p></div>
+            <div class="blk"><span class="lbl">Material a reunir</span><p>Números reais da produção (público, bilheteria/entrada, artistas, expositores) · lista de aprendizados da equipe.</p></div>
+          </div>
+          
+        </div>
+      </details>
+      <details class="post-card">
+        <summary>
+          <div class="post-date2"><span class="dow">QUI</span><span class="dnum">19</span></div>
+          <div class="post-summary-mid">
+            <span class="pillar-pill">🤝 Comunidade</span>
+            <div class="post-title">30. Guia de Curadoria — Como participar da próxima TOCCA</div>
+          </div>
+          <span class="post-badge feed">Feed</span>
+          <span class="chevron">▶</span>
+        </summary>
+        <div class="post-detail">
+          <div class="meta-row"><span class="meta-pill">Carrossel + Stories de teaser</span><span class="meta-pill">19/11</span><a class="refchip" href="#referencias">Ref. 7</a></div>
+          <div class="blk"><span class="lbl">Objetivo</span><p>Encerrar o ciclo abrindo as inscrições de curadoria para as próximas edições, ativando a expectativa e reunindo candidatos.</p></div>
+          <div class="blk"><span class="lbl">Formato e especificações</span><p>Carrossel 7 slides · 1080×1350 · publicar às 12h + 3 Stories de teaser no mesmo dia.</p></div>
+          <div class="blk"><span class="lbl">Roteiro passo a passo</span><ol class="roteiro"><li><b>Slide 1 · Capa</b><span>“GUIA DE CURADORIA | Próximas edições da TOCCA ✨”</span></li><li><b>Slide 2 · O que a TOCCA procura</b><span>Autoralidade · identidade própria · qualidade · propósito · convivência respeitosa.</span></li><li><b>Slide 3 · Quem pode participar</b><span>Artistas musicais · artes visuais · performance · expositores de marcas autorais · gastronomia [confirmar].</span></li><li><b>Slide 4 · Como se inscrever</b><span>Preencher o formulário no link da bio com portfólio, redes e fotos.</span></li><li><b>Slide 5 · Como é a seleção</b><span>“Nossa equipe analisa cada inscrição com cuidado. O contato é feito apenas com os selecionados, por [e-mail/WhatsApp].”</span></li><li><b>Slide 6 · Prazos e datas</b><span>Inscrições até [data] · divulgação dos selecionados em [data] · próxima edição em [mês/ano].</span></li><li><b>Slide 7 · Dúvidas</b><span>“Dúvidas? Veja o Destaque FAQ ou mande DM.” CTA: salvar e compartilhar com artistas.</span></li><li><b>Stories de teaser (3 frames)</b><span>1) “Isso não foi um adeus, foi um até já 👀” · 2) “Quer saber quando é a próxima TOCCA?” (sticker de Enquete: Sim/Claro que sim) · 3) “Fica de olho. Novidade chegando. Liga as notificações.”</span></li></ol></div>
+          <div class="blk"><span class="lbl">Legenda pronta</span><div class="copy-box">✨ GUIA DE CURADORIA | VEJA NO CARROSSEL 👆
+
+As inscrições para as próximas edições da TOCCA já estão abertas!
+
+Se você é artista ou tem uma marca autoral e quer fazer parte, clique no link da bio e preencha o formulário. Buscamos projetos criativos, com identidade, qualidade e propósito.
+
+🚨 Importante: nossa equipe analisa cada inscrição com cuidado. O contato é feito apenas com os selecionados para cada edição.
+
+Queremos você aqui. Vem fazer parte 💜</div></div>
+          <div class="post-grid2">
+            <div class="blk"><span class="lbl">Hashtags</span><p>#TOCCA #TOCCAdosArtistas #BalneárioCamboriú #EventosBC #CulturaBC #ArteLocal #Inscrições #Curadoria #ArteLocal</p></div>
+            <div class="blk"><span class="lbl">Áudio / trilha</span><p>Carrossel sem áudio. Stories de teaser: faixa suave de suspense.</p></div>
+            <div class="blk"><span class="lbl">Mecânica de engajamento</span><p>Fixar no perfil. Pedir aos artistas da edição que compartilhem o guia com seus círculos. Salvar no Destaque “Inscrições”.</p></div>
+            <div class="blk"><span class="lbl">Material a reunir</span><p>Critérios reais de curadoria · link do formulário testado · prazos · e-mail ou WhatsApp de contato.</p></div>
+          </div>
+          
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section id="resumo">
+    <div class="sec-head">
+      <span class="sec-num">08</span>
+      <h2>Cronograma resumido</h2>
+      <p>Visão geral por fase — o roteiro completo de cada conteúdo está na Seção 07.</p>
+    </div>
+    <div class="resumo-grid">
+      <div class="resumo-row"><div class="rl">Semana 1<br>13-17/10</div><div class="rr"><b>Lançamento oficial:</b> anúncio da data (07/11), bastidores com caixinha de perguntas, 1º Spotlight em Reel com a voz do artista, Reel educativo e enquete da lineup.</div></div>
+      <div class="resumo-row"><div class="rl">Semana 2<br>20-24/10</div><div class="rr"><b>Construção do lineup:</b> 2º e 3º Spotlights, história da TOCCA e do espaço do evento e quiz de curiosidade cultural nos Stories.</div></div>
+      <div class="resumo-row"><div class="rl">Semana 3<br>27-31/10</div><div class="rr"><b>Engajamento e retenção:</b> “Vocês Falaram”, carrossel de bem-estar, Reel do cardápio (valor fixo, quantidade limitada), lineup completo com grade e FAQ com localização.</div></div>
+      <div class="resumo-row"><div class="rl">Semana 4<br>01-06/11</div><div class="rr"><b>Urgência e conversão:</b> Reel “faltam 6 dias”, checklist “o que levar”, áudios da comunidade, o DJ do evento (cultura + anúncio), prévia do artista e montagem na véspera.</div></div>
+      <div class="resumo-row"><div class="rl">Evento<br>07/11</div><div class="rr"><b>Cobertura ao vivo:</b> abertura, performances individuais dos artistas e presença do público/comunidade no espaço.</div></div>
+      <div class="resumo-row"><div class="rl">Pós-evento<br>08-19/11</div><div class="rr"><b>Retenção e prova social:</b> agradecimento imediato, coleta de depoimentos, agradecimento aos artistas, Reel recap, “Quem Foi Amou”, balanço transparente e Guia de Curadoria para as próximas edições.</div></div>
+    </div>
+  </section>
+
+  <section id="checklist">
+    <div class="sec-head">
+      <span class="sec-num">09</span>
+      <h2>Checklist operacional</h2>
+      <p>Passe por aqui antes de começar a produção, e semanalmente durante a execução.</p>
+    </div>
+
+    <div class="checklist-group">
+      <h4>Ações imediatas (antes de começar)</h4>
+      <div class="checklist">
+        <div class="check-item"><input type="checkbox" id="c1"><label for="c1">Atualizar a bio do Instagram com a versão proposta na Seção 01</label></div>
+        <div class="check-item"><input type="checkbox" id="c2"><label for="c2">Confirmar artistas da lineup: nomes, fotos em alta e mini-bios (mín. 5-8)</label></div>
+        <div class="check-item"><input type="checkbox" id="c3"><label for="c3">Separar acervo de fotos/vídeos de edições anteriores em boa qualidade</label></div>
+        <div class="check-item"><input type="checkbox" id="c4"><label for="c4">Desenvolver templates no Canva respeitando a paleta oficial</label></div>
+        <div class="check-item"><input type="checkbox" id="c5"><label for="c5">Redigir bios resumidas de cada artista (2-3 linhas) pra série Spotlight</label></div>
+        <div class="check-item"><input type="checkbox" id="c6"><label for="c6">Criar e padronizar os 4 Destaques fixos: Artistas, Eventos, FAQ, Inscrições</label></div>
+        <div class="check-item"><input type="checkbox" id="c7"><label for="c7">Confirmar data/local do evento (contrato e logística finalizados)</label></div>
+        <div class="check-item"><input type="checkbox" id="c8"><label for="c8">Testar o formulário de inscrição e o link do WhatsApp na bio</label></div>
+      </div>
+    </div>
+
+    <div class="checklist-group">
+      <h4>Rotina contínua de produção</h4>
+      <div class="checklist">
+        <div class="check-item"><input type="checkbox" id="c9"><label for="c9">Fotografar/gravar bastidores 2-3x por semana</label></div>
+        <div class="check-item"><input type="checkbox" id="c10"><label for="c10">Tratar e editar mídias (Lightroom ou Snapseed)</label></div>
+        <div class="check-item"><input type="checkbox" id="c11"><label for="c11">Agendar posts (Buffer ou Meta Business Suite) seguindo a pauta</label></div>
+        <div class="check-item"><input type="checkbox" id="c12"><label for="c12">Programar Stories diários — mínimo 2-3/dia, rotina de 3 blocos</label></div>
+        <div class="check-item"><input type="checkbox" id="c13"><label for="c13">Usar os copies da pauta como base, adaptando com a voz real da marca</label></div>
+        <div class="check-item"><input type="checkbox" id="c14"><label for="c14">Aplicar stickers interativos (enquetes, quizzes, caixinhas) nos Stories</label></div>
+        <div class="check-item"><input type="checkbox" id="c15"><label for="c15">Atualizar semanalmente: Seguidores, Engajamento %, Alcance, Inscrições</label></div>
+      </div>
+    </div>
+
+    <div class="checklist-group">
+      <h4>Dia do evento (07/11)</h4>
+      <div class="checklist">
+        <div class="check-item"><input type="checkbox" id="c16"><label for="c16">Registrar chegada, recepção e estrutura em tempo real (Conteúdo 21)</label></div>
+        <div class="check-item"><input type="checkbox" id="c17"><label for="c17">Capturar 1-2 mídias de cada artista e marcar os perfis (Conteúdo 22)</label></div>
+        <div class="check-item"><input type="checkbox" id="c18"><label for="c18">Registros espontâneos do público pra comprovar atmosfera segura (Conteúdo 23)</label></div>
+      </div>
+    </div>
+
+    <div class="checklist-group">
+      <h4>Plano de ação pós-evento</h4>
+      <div class="checklist">
+        <div class="check-item"><input type="checkbox" id="c19"><label for="c19">Publicar agradecimento na mesma noite/manhã seguinte (Conteúdo 24)</label></div>
+        <div class="check-item"><input type="checkbox" id="c20"><label for="c20">Coletar mídias e depoimentos via caixinha/DM (Conteúdo 25)</label></div>
+        <div class="check-item"><input type="checkbox" id="c21"><label for="c21">Coletar feedback dos artistas sobre interesse em retornar</label></div>
+        <div class="check-item"><input type="checkbox" id="c22"><label for="c22">Compilar depoimentos e prints pro carrossel de prova social (Conteúdo 28)</label></div>
+        <div class="check-item"><input type="checkbox" id="c23"><label for="c23">Elaborar relatório interno: público, engajamento, aprendizados (Conteúdo 29)</label></div>
+        <div class="check-item"><input type="checkbox" id="c24"><label for="c24">Buscar hashtags/menções espontâneas e repostar quando fizer sentido</label></div>
+        <div class="check-item"><input type="checkbox" id="c25"><label for="c25">Planejar e veicular o teaser da próxima edição (Conteúdo 30)</label></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="kpis">
+    <div class="sec-head">
+      <span class="sec-num">10</span>
+      <h2>Painel de métricas & KPIs</h2>
+      <p>Monitoramento semanal (segundas e quartas) no Instagram Insights, com planilha de acompanhamento dedicada.</p>
+    </div>
+
+    <div class="kpi-top">MÉTRICAS PRIORITÁRIAS DE CONVERSÃO</div>
+    <div class="kpi-split">
+      <div class="kpi-box">
+        <div class="t">💾 Salvamentos de Publicação</div>
+        <div class="d">Indicador central pra carrosséis informativos (Conteúdo 11 — dicas de saúde; Conteúdo 16 — checklist). Alto peso de relevância e intenção real de ida ao evento.</div>
+      </div>
+      <div class="kpi-box">
+        <div class="t">📤 Compartilhamentos por DM</div>
+        <div class="d">Validação social orgânica. Avalia o poder de recomendação da persona Marina ao distribuir a marca direto pra contatos e grupos.</div>
+      </div>
+    </div>
+
+    <div class="formula">
+      <div class="formula-head"><span class="formula-name">Métricas secundárias e metas de acompanhamento</span></div>
+      <ul>
+        <li><b>Alcance e Impressões</b> — crescimento de topo de funil; meta de picos após Reels educativos e de bastidores.</li>
+        <li><b>Taxa de Engajamento (%)</b> — interações totais (curtidas, comentários, salvamentos, compartilhamentos) ÷ alcance.</li>
+        <li><b>Taxa de Resposta a Comentários</b> — manter 100% respondidos em até 2h, priorizando a série Spotlight Artistas.</li>
+        <li><b>Taxa de Conversão de Links (WhatsApp)</b> — volume semanal de mensagens e cadastros a partir da bio.</li>
+        <li><b>Evolução do Saldo de Seguidores</b> — variação e retenção de inscritos, associada aos dias de Spotlight.</li>
+      </ul>
+    </div>
+  </section>
+
+  <div class="next">
+    <h2>Próximos passos</h2>
+    <ol>
+      <li><b>A pauta de 30 conteúdos está fechada.</b> O trabalho agora é produzir: reunir fotos, vídeos e áudios de cada conteúdo (veja “Material a reunir” em cada card) e gravar com 1 semana de antecedência.</li>
+      <li><b>Atualize a bio e os Destaques primeiro.</b> Eles sustentam toda a campanha.</li>
+      <li><b>Guarde os depoimentos, áudios e prints de evento à medida que forem chegando.</b> São o combustível dos conteúdos de prova social (10, 17, 25, 28).</li>
+      <li><b>Envie a lineup assim que estiver fechada</b> (nomes, @ e fotos dos artistas), para preencher as legendas com os dados reais e fechar os trechos entre [colchetes].</li>
+    </ol>
+    <div class="note">Documento vivo: ajustes de gancho, ordem da pauta ou extensão do planejamento para as próximas edições podem ser alinhados a qualquer momento.<br>Elaborado por Bárbara Cordova · @barbaracordovamkt</div>
+  </div>
+
+</div>
+</body>
+</html>
